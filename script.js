@@ -1,0 +1,202 @@
+import * as THREE from "../three/build/three.module.js";
+import { GLTFLoader } from "../three/examples/jsm/loaders/GLTFLoader.js";
+import { FBXLoader } from '../three/examples/jsm/loaders/FBXLoader.js';
+import { Water } from './three/examples/jsm/objects/Water.js';
+import { Sky } from './three/examples/jsm/objects/Sky.js';
+import { OrbitControls } from "./three/examples/jsm/controls/OrbitControls.js";
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+camera.position.set(0, 50, 30);
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#canvas"), antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.5;
+renderer.setClearColor("#7CB9E8", 1);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+
+const gltfLoader = new GLTFLoader();
+const fbxLoader = new FBXLoader();
+
+let model, island, water, sky;
+let boatHeight = -2;
+
+fbxLoader.load('island3.fbx', (island) => {
+    scene.add(island);
+    island.position.y = -8.1;
+    island.position.x = 0;
+    island.position.z = 10;
+    island.scale.set(0.025, 0.025, 0.025);
+});
+
+gltfLoader.load("./ship/ship.glb", (object) => {
+    model = object.scene;
+    scene.add(model);
+    model.scale.set(0.25, 0.25, 0.25);
+    model.position.set(0, 0, -50);
+    model.rotation.y = 0;
+});
+
+scene.add(new THREE.AmbientLight());
+
+const waterGeometry = new THREE.PlaneGeometry(10000, 10000, 256, 256);
+const waterTexture = new THREE.TextureLoader().load('waternormals.jpg');
+waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
+
+water = new Water(waterGeometry, {
+    textureWidth: 1024,
+    textureHeight: 1024,
+    waterNormals: waterTexture,
+    sunDirection: new THREE.Vector3(),
+    sunColor: 0x001e0f,
+    distortionScale: 1,
+    fog: scene.fog !== undefined
+});
+water.rotation.x = -Math.PI / 2;
+scene.add(water);
+
+sky = new Sky();
+sky.scale.setScalar(10000);
+scene.add(sky);
+
+const skyUniforms = sky.material.uniforms;
+skyUniforms['turbidity'].value = 10;
+skyUniforms['rayleigh'].value = 2;
+skyUniforms['mieCoefficient'].value = 0.005;
+skyUniforms['mieDirectionalG'].value = 0.8;
+
+const parameters = { elevation: 0, azimuth: 180 };
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+const sceneEnv = new THREE.Scene();
+let renderTarget;
+
+function updateSun() {
+    const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
+    const theta = THREE.MathUtils.degToRad(parameters.azimuth);
+    const sun = new THREE.Vector3().setFromSphericalCoords(1, phi, theta);
+    sky.material.uniforms['sunPosition'].value.copy(sun);
+    water.material.uniforms['sunDirection'].value.copy(sun).normalize();
+    if (renderTarget) {
+        renderTarget.dispose();
+    }
+    sceneEnv.add(sky);
+    renderTarget = pmremGenerator.fromScene(sceneEnv);
+    scene.add(sky);
+    scene.environment = renderTarget.texture;
+}
+
+updateSun();
+
+let moveSpeed = 0;
+let maxSpeed = 0.3;
+const minSpeed = 0;
+let speedIncrement = 0.0125;
+const friction = 0.0025;
+const rotateSpeed = 0.004;
+const keys = { w: false, a: false, d: false, shift: false };
+let controlState = 'boat';
+
+document.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+    if (keys.hasOwnProperty(key)) keys[key] = true;
+
+});
+
+document.addEventListener("keyup", (event) => {
+    const key = event.key.toLowerCase();
+    if (keys.hasOwnProperty(key)) keys[key] = false;
+
+});
+
+let currentRotation = 0;
+const rotationSpeed = 0.01;
+
+let targetLean = 0;
+const leanSpeed = 0.05;
+let cameraZoomDistance = 30; 
+const zoomSpeedIdle = 0.05; 
+const zoomSpeedMove = 0.05; 
+
+const minZoom = 30;
+const maxZoom = 35;
+
+function animate() {
+    if (model) {
+        if (controlState === 'boat') {
+            if (keys.w && moveSpeed < maxSpeed) {
+                moveSpeed += speedIncrement;
+            }
+            if (!keys.w) {
+
+                moveSpeed -= friction;
+                if (moveSpeed < minSpeed) {
+                    moveSpeed = minSpeed;
+                }
+            }
+            model.translateZ(-moveSpeed);
+
+            if (keys.a) {
+                model.rotation.y += rotateSpeed;
+                targetLean = moveSpeed / 3;
+            } else if (keys.d) {
+                model.rotation.y -= rotateSpeed;
+                targetLean = -moveSpeed / 3;
+            } else {
+                targetLean = Math.sin(currentRotation) * 0.025;
+            }
+
+            model.rotation.z += (targetLean - model.rotation.z) * leanSpeed;
+
+            const boatPosition = new THREE.Vector3();
+            model.getWorldPosition(boatPosition);
+
+            const cameraOffset = new THREE.Vector3(0, 15, cameraZoomDistance);  
+            const rotationMatrix = new THREE.Matrix4();
+            rotationMatrix.extractRotation(model.matrixWorld);
+            const rotatedCameraOffset = cameraOffset.applyMatrix4(rotationMatrix);
+
+            const finalCameraPosition = boatPosition.clone().add(rotatedCameraOffset);
+
+            camera.position.copy(finalCameraPosition);
+            camera.lookAt(boatPosition);
+
+            if (!Object.values(keys).some(key => key)) {
+                const idleCameraOffset = new THREE.Vector3(0, 10, 40);
+                const rotatedIdleCameraOffset = idleCameraOffset.applyMatrix4(rotationMatrix);
+                const idleCameraPosition = boatPosition.clone().add(rotatedIdleCameraOffset);
+
+                camera.position.lerp(idleCameraPosition, 0.02);
+                camera.lookAt(boatPosition);
+                currentRotation += rotationSpeed;
+                
+                model.position.y = boatHeight;
+                controls.target.copy(model.position);
+                controls.update();
+                targetLean = Math.sin(currentRotation) * 0.035;
+                model.rotation.z += (targetLean - model.rotation.z) * leanSpeed;
+
+                
+                cameraZoomDistance = Math.min(cameraZoomDistance + zoomSpeedIdle, maxZoom); 
+            } 
+
+            else {
+                
+                cameraZoomDistance = Math.max(cameraZoomDistance - zoomSpeedMove, minZoom); 
+            }
+        }
+    }
+
+    water.material.uniforms['time'].value += 0.01;
+    water.material.uniforms['size'].value = 5;
+    renderer.render(scene, camera);
+}
+
+function renderLoop() {
+    requestAnimationFrame(renderLoop);
+    animate();
+}
+
+renderLoop();

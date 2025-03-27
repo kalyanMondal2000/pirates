@@ -1,0 +1,11 @@
+Model Information:
+* title:	Black Pearl
+* source:	https://sketchfab.com/3d-models/black-pearl-1d9240aacd6140c4a3187fbbce427326
+* author:	jorafe (https://sketchfab.com/joanrafe15)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Black Pearl" (https://sketchfab.com/3d-models/black-pearl-1d9240aacd6140c4a3187fbbce427326) by jorafe (https://sketchfab.com/joanrafe15) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
