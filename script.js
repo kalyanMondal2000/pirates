@@ -4,10 +4,10 @@ import { FBXLoader } from '../three/examples/jsm/loaders/FBXLoader.js';
 import { Water } from './three/examples/jsm/objects/Water.js';
 import { Sky } from './three/examples/jsm/objects/Sky.js';
 import { OrbitControls } from "./three/examples/jsm/controls/OrbitControls.js";
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-camera.position.set(0, 50, 30);
+camera.position.set(0, 20, 30);
 
 const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#canvas"), antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -17,6 +17,9 @@ renderer.toneMappingExposure = 0.5;
 renderer.setClearColor("#7CB9E8", 1);
 
 const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.enableZoom = false;
 
 const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
@@ -102,23 +105,21 @@ let controlState = 'boat';
 document.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
     if (keys.hasOwnProperty(key)) keys[key] = true;
-
 });
 
 document.addEventListener("keyup", (event) => {
     const key = event.key.toLowerCase();
     if (keys.hasOwnProperty(key)) keys[key] = false;
-
 });
 
 let currentRotation = 0;
 const rotationSpeed = 0.01;
-
+const currentDrift = new THREE.Vector3(0.001, 0, 0.001);
 let targetLean = 0;
 const leanSpeed = 0.05;
-let cameraZoomDistance = 30; 
-const zoomSpeedIdle = 0.05; 
-const zoomSpeedMove = 0.05; 
+let cameraZoomDistance = 30;
+const zoomSpeedIdle = 0.05;
+const zoomSpeedMove = 0.05;
 
 const minZoom = 30;
 const maxZoom = 35;
@@ -130,7 +131,6 @@ function animate() {
                 moveSpeed += speedIncrement;
             }
             if (!keys.w) {
-
                 moveSpeed -= friction;
                 if (moveSpeed < minSpeed) {
                     moveSpeed = minSpeed;
@@ -153,38 +153,29 @@ function animate() {
             const boatPosition = new THREE.Vector3();
             model.getWorldPosition(boatPosition);
 
-            const cameraOffset = new THREE.Vector3(0, 15, cameraZoomDistance);  
+            const cameraOffset = new THREE.Vector3(0, 15, cameraZoomDistance);
             const rotationMatrix = new THREE.Matrix4();
             rotationMatrix.extractRotation(model.matrixWorld);
             const rotatedCameraOffset = cameraOffset.applyMatrix4(rotationMatrix);
-
             const finalCameraPosition = boatPosition.clone().add(rotatedCameraOffset);
 
             camera.position.copy(finalCameraPosition);
             camera.lookAt(boatPosition);
 
             if (!Object.values(keys).some(key => key)) {
-                const idleCameraOffset = new THREE.Vector3(0, 10, 40);
-                const rotatedIdleCameraOffset = idleCameraOffset.applyMatrix4(rotationMatrix);
-                const idleCameraPosition = boatPosition.clone().add(rotatedIdleCameraOffset);
-
-                camera.position.lerp(idleCameraPosition, 0.02);
-                camera.lookAt(boatPosition);
                 currentRotation += rotationSpeed;
-                
+                model.position.add(currentDrift);
                 model.position.y = boatHeight;
                 controls.target.copy(model.position);
                 controls.update();
                 targetLean = Math.sin(currentRotation) * 0.035;
                 model.rotation.z += (targetLean - model.rotation.z) * leanSpeed;
 
-                
-                cameraZoomDistance = Math.min(cameraZoomDistance + zoomSpeedIdle, maxZoom); 
-            } 
-
-            else {
-                
-                cameraZoomDistance = Math.max(cameraZoomDistance - zoomSpeedMove, minZoom); 
+                cameraZoomDistance = Math.min(cameraZoomDistance + zoomSpeedIdle, maxZoom);
+                controls.enabled = true;
+            } else {
+                cameraZoomDistance = Math.max(cameraZoomDistance - zoomSpeedMove, minZoom);
+                controls.enabled = false;
             }
         }
     }
@@ -192,6 +183,7 @@ function animate() {
     water.material.uniforms['time'].value += 0.01;
     water.material.uniforms['size'].value = 5;
     renderer.render(scene, camera);
+    if(controls.enabled) controls.update();
 }
 
 function renderLoop() {
