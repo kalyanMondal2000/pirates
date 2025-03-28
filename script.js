@@ -23,7 +23,6 @@ controls.enableZoom = false;
 controls.enablePan = false;
 controls.panSpeed = 0.1;
 
-
 const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
 
@@ -102,7 +101,7 @@ const minSpeed = 0;
 let speedIncrement = 0.0025;
 const friction = 0.00125;
 const rotateSpeed = 0.004;
-const keys = { w: false, a: false, d: false, shift: false };
+const keys = { w: false, a: false, d: false, shift: false, c: false, space: false };
 let controlState = 'boat';
 
 document.addEventListener("keydown", (event) => {
@@ -125,6 +124,10 @@ const zoomSpeedMove = 0.025;
 
 const minZoom = 30;
 const maxZoom = 35;
+
+let cameraView = 'follow'; 
+let originalCameraPosition = new THREE.Vector3();
+let originalCameraLookAt = new THREE.Vector3();
 
 function animate() {
     if (model) {
@@ -155,30 +158,49 @@ function animate() {
             const boatPosition = new THREE.Vector3();
             model.getWorldPosition(boatPosition);
 
-            const cameraOffset = new THREE.Vector3(0, 15, cameraZoomDistance);
-            const rotationMatrix = new THREE.Matrix4();
-            rotationMatrix.extractRotation(model.matrixWorld);
-            const rotatedCameraOffset = cameraOffset.applyMatrix4(rotationMatrix);
-            const finalCameraPosition = boatPosition.clone().add(rotatedCameraOffset);
+            if (cameraView === 'follow') {
+                const cameraOffset = new THREE.Vector3(1, 15, cameraZoomDistance);
+                const rotationMatrix = new THREE.Matrix4();
+                rotationMatrix.extractRotation(model.matrixWorld);
+                const rotatedCameraOffset = cameraOffset.applyMatrix4(rotationMatrix);
+                const finalCameraPosition = boatPosition.clone().add(rotatedCameraOffset);
 
-            camera.position.copy(finalCameraPosition);
-            camera.lookAt(boatPosition);
+                camera.position.copy(finalCameraPosition);
+                camera.lookAt(boatPosition);
+            } else if (cameraView === 'side') {
+                const sideOffset = new THREE.Vector3(-30, 10, 0);
+                const rotationMatrix = new THREE.Matrix4();
+                rotationMatrix.extractRotation(model.matrixWorld);
+                const rotatedSideOffset = sideOffset.applyMatrix4(rotationMatrix);
+                const sideCameraPosition = boatPosition.clone().add(rotatedSideOffset);
+
+                camera.position.copy(sideCameraPosition);
+                camera.lookAt(boatPosition);
+            }
 
             if (!Object.values(keys).some(key => key)) {
                 currentRotation += rotationSpeed;
-                
                 model.position.y = boatHeight;
-                controls.target.set(model.position.x, model.position.y, model.position.z);
-                
+                controls.target.copy(model.position);
                 controls.update();
                 targetLean = Math.sin(currentRotation) * 0.035;
                 model.rotation.z += (targetLean - model.rotation.z) * leanSpeed;
-
                 cameraZoomDistance = Math.min(cameraZoomDistance + zoomSpeedIdle, maxZoom);
                 controls.enabled = true;
-            } else {
+            } else if (keys.w || keys.a || keys.d) {
                 cameraZoomDistance = Math.max(cameraZoomDistance - zoomSpeedMove, minZoom);
                 controls.enabled = false;
+            }
+        }
+
+        if (keys.c) {
+            keys.c = false; 
+            if (cameraView === 'follow') {
+                cameraView = 'side';
+                originalCameraPosition.copy(camera.position);
+                originalCameraLookAt.copy(controls.target);
+            } else {
+                cameraView = 'follow';
             }
         }
     }
@@ -186,7 +208,7 @@ function animate() {
     water.material.uniforms['time'].value += 0.01;
     water.material.uniforms['size'].value = 5;
     renderer.render(scene, camera);
-    if(controls.enabled) controls.update();
+    if (controls.enabled) controls.update();
 }
 
 function renderLoop() {
