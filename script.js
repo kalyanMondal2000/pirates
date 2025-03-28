@@ -20,6 +20,9 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.enableZoom = false;
+controls.enablePan = false;
+controls.panSpeed = 0.1;
+
 
 const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
@@ -128,7 +131,6 @@ function animate() {
         if (controlState === 'boat') {
             if (keys.w && moveSpeed < maxSpeed) {
                 moveSpeed += speedIncrement;
-                
             }
             if (!keys.w) {
                 moveSpeed -= friction;
@@ -166,7 +168,8 @@ function animate() {
                 currentRotation += rotationSpeed;
                 
                 model.position.y = boatHeight;
-                controls.target.copy(model.position);
+                controls.target.set(model.position.x, model.position.y, model.position.z);
+                
                 controls.update();
                 targetLean = Math.sin(currentRotation) * 0.035;
                 model.rotation.z += (targetLean - model.rotation.z) * leanSpeed;
