@@ -101,7 +101,7 @@ const minSpeed = 0;
 let speedIncrement = 0.0025;
 const friction = 0.00125;
 const rotateSpeed = 0.004;
-const keys = { w: false, a: false, d: false, shift: false, c: false, space: false };
+const keys = { w: false, a: false, d: false, shift: false, c: false, space: false, r: false };
 let controlState = 'boat';
 
 document.addEventListener("keydown", (event) => {
@@ -128,6 +128,7 @@ const maxZoom = 35;
 let cameraView = 'follow'; 
 let originalCameraPosition = new THREE.Vector3();
 let originalCameraLookAt = new THREE.Vector3();
+let sideViewDirection = -1; 
 
 function animate() {
     if (model) {
@@ -168,7 +169,7 @@ function animate() {
                 camera.position.copy(finalCameraPosition);
                 camera.lookAt(boatPosition);
             } else if (cameraView === 'side') {
-                const sideOffset = new THREE.Vector3(-30, 10, 0);
+                const sideOffset = new THREE.Vector3(30 * sideViewDirection, 10, 0);
                 const rotationMatrix = new THREE.Matrix4();
                 rotationMatrix.extractRotation(model.matrixWorld);
                 const rotatedSideOffset = sideOffset.applyMatrix4(rotationMatrix);
@@ -194,7 +195,7 @@ function animate() {
         }
 
         if (keys.c) {
-            keys.c = false; 
+            keys.c = false;
             if (cameraView === 'follow') {
                 cameraView = 'side';
                 originalCameraPosition.copy(camera.position);
@@ -202,6 +203,11 @@ function animate() {
             } else {
                 cameraView = 'follow';
             }
+        }
+
+        if(keys.r && cameraView === 'side'){
+            keys.r = false;
+            sideViewDirection *= -1;
         }
     }
 
