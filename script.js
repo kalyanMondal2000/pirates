@@ -97,7 +97,7 @@ let moveSpeed = 0;
 let maxSpeed = 0.3;
 const minSpeed = 0;
 let speedIncrement = 0.0125;
-const friction = 0.0025;
+const friction = 0.00125;
 const rotateSpeed = 0.004;
 const keys = { w: false, a: false, d: false, shift: false };
 let controlState = 'boat';
@@ -114,10 +114,9 @@ document.addEventListener("keyup", (event) => {
 
 let currentRotation = 0;
 const rotationSpeed = 0.01;
-const currentDrift = new THREE.Vector3(0.001, 0, 0.001);
 let targetLean = 0;
 const leanSpeed = 0.05;
-let cameraZoomDistance = 30;
+let cameraZoomDistance = 35;
 const zoomSpeedIdle = 0.05;
 const zoomSpeedMove = 0.05;
 
@@ -140,10 +139,10 @@ function animate() {
 
             if (keys.a) {
                 model.rotation.y += rotateSpeed;
-                targetLean = moveSpeed / 3;
+                targetLean = moveSpeed / 2;
             } else if (keys.d) {
                 model.rotation.y -= rotateSpeed;
-                targetLean = -moveSpeed / 3;
+                targetLean = -moveSpeed / 2;
             } else {
                 targetLean = Math.sin(currentRotation) * 0.025;
             }
@@ -164,7 +163,7 @@ function animate() {
 
             if (!Object.values(keys).some(key => key)) {
                 currentRotation += rotationSpeed;
-                model.position.add(currentDrift);
+                
                 model.position.y = boatHeight;
                 controls.target.copy(model.position);
                 controls.update();
