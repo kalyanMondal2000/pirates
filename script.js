@@ -96,7 +96,7 @@ updateSun();
 let moveSpeed = 0;
 let maxSpeed = 0.3;
 const minSpeed = 0;
-let speedIncrement = 0.0125;
+let speedIncrement = 0.0025;
 const friction = 0.00125;
 const rotateSpeed = 0.004;
 const keys = { w: false, a: false, d: false, shift: false };
@@ -117,8 +117,8 @@ const rotationSpeed = 0.01;
 let targetLean = 0;
 const leanSpeed = 0.05;
 let cameraZoomDistance = 35;
-const zoomSpeedIdle = 0.05;
-const zoomSpeedMove = 0.05;
+const zoomSpeedIdle = 0.025;
+const zoomSpeedMove = 0.025;
 
 const minZoom = 30;
 const maxZoom = 35;
@@ -128,6 +128,7 @@ function animate() {
         if (controlState === 'boat') {
             if (keys.w && moveSpeed < maxSpeed) {
                 moveSpeed += speedIncrement;
+                
             }
             if (!keys.w) {
                 moveSpeed -= friction;
