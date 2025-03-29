@@ -169,7 +169,7 @@ function animate() {
                 camera.position.copy(finalCameraPosition);
                 camera.lookAt(boatPosition);
             } else if (cameraView === 'side') {
-                const sideOffset = new THREE.Vector3(30 * sideViewDirection, 10, 0);
+                const sideOffset = new THREE.Vector3(28 * sideViewDirection, 10, 0);
                 const rotationMatrix = new THREE.Matrix4();
                 rotationMatrix.extractRotation(model.matrixWorld);
                 const rotatedSideOffset = sideOffset.applyMatrix4(rotationMatrix);
