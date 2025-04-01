@@ -49,10 +49,9 @@ const loadIsland1 = (url) => {
 
     })
 }
-/*
-for(let x=0;x<=20;x++){
+
 loadIsland1('./miscAssets/island1.glb')
-}*/
+
 
 scene.add(new THREE.AmbientLight());
 
