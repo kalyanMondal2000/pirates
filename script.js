@@ -44,13 +44,19 @@ const loadIsland1 = (url) => {
         island = obj.scene; 
         scene.add(island)
         island.scale.set(0.125, 0.125, 0.125);
-        island.position.set(0, 0, -100);
+        
+        
+        island.position.z = Math.random() * (1000 + 1000) - 1000; 
+        island.position.x = Math.random() * (4000 + 4000) - 4000; 
         island.rotation.y = 0;
 
     })
 }
 
+
+for(let x=0;x<=150; x++){
 loadIsland1('./miscAssets/island1.glb')
+}
 
 
 scene.add(new THREE.AmbientLight());
@@ -104,7 +110,7 @@ function updateSun() {
 updateSun();
 
 let moveSpeed = 0;
-let maxSpeed = 0.3;
+let maxSpeed = 0.25;
 const minSpeed = 0;
 let speedIncrement = 0.0025;
 const friction = 0.00125;
