@@ -26,16 +26,10 @@ controls.panSpeed = 0.1;
 const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
 
-let model, island, water, sky;
+let model, water, sky;
 let boatHeight = -2;
 
-fbxLoader.load('island3.fbx', (island) => {
-    scene.add(island);
-    island.position.y = -8.1;
-    island.position.x = 0;
-    island.position.z = 10;
-    island.scale.set(0.025, 0.025, 0.025);
-});
+
 
 gltfLoader.load("./ship/ship.glb", (object) => {
     model = object.scene;
