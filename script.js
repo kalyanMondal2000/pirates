@@ -26,7 +26,7 @@ controls.panSpeed = 0.1;
 const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
 
-let model, water, sky;
+let model, water, sky, island, island2;
 let boatHeight = -2;
 
 
@@ -38,6 +38,21 @@ gltfLoader.load("./ship/ship.glb", (object) => {
     model.position.set(0, 0, -50);
     model.rotation.y = 0;
 });
+
+const loadIsland1 = (url) => {
+    gltfLoader.load(url, (obj)=>{
+        island = obj.scene; 
+        scene.add(island)
+        island.scale.set(0.125, 0.125, 0.125);
+        island.position.set(0, 0, -100);
+        island.rotation.y = 0;
+
+    })
+}
+/*
+for(let x=0;x<=20;x++){
+loadIsland1('./miscAssets/island1.glb')
+}*/
 
 scene.add(new THREE.AmbientLight());
 
