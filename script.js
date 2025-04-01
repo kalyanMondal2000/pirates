@@ -77,9 +77,9 @@ scene.add(sky);
 
 const skyUniforms = sky.material.uniforms;
 skyUniforms['turbidity'].value = 10;
-skyUniforms['rayleigh'].value = 2;
+skyUniforms['rayleigh'].value = 1;
 skyUniforms['mieCoefficient'].value = 0.005;
-skyUniforms['mieDirectionalG'].value = 0.8;
+skyUniforms['mieDirectionalG'].value = 0.5;
 
 const parameters = { elevation: 0, azimuth: 180 };
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
