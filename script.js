@@ -29,7 +29,7 @@ const fbxLoader = new FBXLoader();
 let model, water, sky, island;
 let boatHeight = -2;
 
-
+let boatPosition = new THREE.Vector3();
 
 gltfLoader.load("./ship/ship.glb", (object) => {
     model = object.scene;
@@ -37,27 +37,37 @@ gltfLoader.load("./ship/ship.glb", (object) => {
     model.scale.set(0.25, 0.25, 0.25);
     model.position.set(0, 0, -50);
     model.rotation.y = 0;
+    model.getWorldPosition(boatPosition);
 });
 
 const loadIsland1 = (url) => {
-    gltfLoader.load(url, (obj)=>{
-        island = obj.scene; 
-        scene.add(island)
+    gltfLoader.load(url, (obj) => {
+        island = obj.scene;
+        scene.add(island);
         island.scale.set(0.125, 0.125, 0.125);
-        
-        
-        island.position.z = Math.random() * (1000 + 1000) - 1000; 
-        island.position.x = Math.random() * (4000 + 4000) - 4000; 
+
+        let islandPosition = new THREE.Vector3();
+        let validPosition = false;
+
+        while (!validPosition) {
+            islandPosition.z = Math.random() * (1000 + 1000) - 1000;
+            islandPosition.x = Math.random() * (1000 + 1000) - 1000;
+
+            const distanceToBoat = boatPosition.distanceTo(islandPosition);
+
+            if (distanceToBoat > 50) {
+                validPosition = true;
+            }
+        }
+
+        island.position.copy(islandPosition);
         island.rotation.y = 0;
+    });
+};
 
-    })
+for (let x = 0; x <= 150; x++) {
+    loadIsland1('./miscAssets/island1.glb');
 }
-
-
-for(let x=0;x<=150; x++){
-loadIsland1('./miscAssets/island1.glb')
-}
-
 
 scene.add(new THREE.AmbientLight());
 
@@ -139,10 +149,23 @@ const zoomSpeedMove = 0.025;
 const minZoom = 30;
 const maxZoom = 35;
 
-let cameraView = 'follow'; 
+let cameraView = 'follow';
 let originalCameraPosition = new THREE.Vector3();
 let originalCameraLookAt = new THREE.Vector3();
-let sideViewDirection = -1; 
+let sideViewDirection = -1;
+
+
+const weaponWheel = document.createElement('div');
+weaponWheel.style.position = 'absolute';
+weaponWheel.style.top = '50%';
+weaponWheel.style.left = '50%';
+weaponWheel.style.transform = 'translate(-50%, -50%)';
+weaponWheel.style.width = '300px';
+weaponWheel.style.height = '300px';
+weaponWheel.style.borderRadius = '50%';
+weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+weaponWheel.style.display = 'none'; 
+document.body.appendChild(weaponWheel);
 
 function animate() {
     if (model) {
@@ -170,7 +193,6 @@ function animate() {
 
             model.rotation.z += (targetLean - model.rotation.z) * leanSpeed;
 
-            const boatPosition = new THREE.Vector3();
             model.getWorldPosition(boatPosition);
 
             if (cameraView === 'follow') {
@@ -191,6 +213,13 @@ function animate() {
 
                 camera.position.copy(sideCameraPosition);
                 camera.lookAt(boatPosition);
+
+                // Weapon wheel logic
+                if (keys.shift) {
+                    weaponWheel.style.display = 'block';
+                } else {
+                    weaponWheel.style.display = 'none';
+                }
             }
 
             if (!Object.values(keys).some(key => key)) {
@@ -219,7 +248,7 @@ function animate() {
             }
         }
 
-        if(keys.r && cameraView === 'side'){
+        if (keys.r && cameraView === 'side') {
             keys.r = false;
             sideViewDirection *= -1;
         }
