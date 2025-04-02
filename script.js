@@ -167,31 +167,6 @@ weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
 weaponWheel.style.display = 'none'; // Initially hidden
 document.body.appendChild(weaponWheel);
 
-// Weapon wheel sections
-const weaponSections = 3;
-const sectionAngle = 360 / weaponSections;
-const weaponSectionElements = []; // Store section elements
-
-for (let i = 0; i < weaponSections; i++) {
-    const section = document.createElement('div');
-    section.style.position = 'absolute';
-    section.style.width = '100%';
-    section.style.height = '100%';
-    section.style.clipPath = `polygon(50% 50%, ${50 + 50 * Math.cos((i * sectionAngle) * Math.PI / 180)}% ${50 + 50 * Math.sin((i * sectionAngle) * Math.PI / 180)}%, ${50 + 50 * Math.cos(((i + 1) * sectionAngle) * Math.PI / 180)}% ${50 + 50 * Math.sin(((i + 1) * sectionAngle) * Math.PI / 180)}%)`;
-    section.style.backgroundColor = `rgba(100, 100, 100, 0.7)`;
-
-    section.addEventListener('mouseover', () => {
-        section.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-    });
-
-    section.addEventListener('mouseout', () => {
-        section.style.backgroundColor = `rgba(100, 100, 100, 0.7)`;
-    });
-
-    weaponWheel.appendChild(section);
-    weaponSectionElements.push(section); 
-}
-
 function animate() {
     if (model) {
         if (controlState === 'boat') {
@@ -239,7 +214,7 @@ function animate() {
                 camera.position.copy(sideCameraPosition);
                 camera.lookAt(boatPosition);
 
-                
+                // Weapon wheel logic
                 if (keys.shift) {
                     weaponWheel.style.display = 'block';
                 } else {
