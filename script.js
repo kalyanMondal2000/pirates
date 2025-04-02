@@ -154,7 +154,6 @@ let originalCameraPosition = new THREE.Vector3();
 let originalCameraLookAt = new THREE.Vector3();
 let sideViewDirection = -1;
 
-// Weapon Wheel Elements
 const weaponWheel = document.createElement('div');
 weaponWheel.style.position = 'absolute';
 weaponWheel.style.top = '50%';
@@ -214,7 +213,6 @@ function animate() {
                 camera.position.copy(sideCameraPosition);
                 camera.lookAt(boatPosition);
 
-                
                 if (keys.shift) {
                     weaponWheel.style.display = 'block';
                 } else {
