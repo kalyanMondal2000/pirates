@@ -126,7 +126,7 @@ let speedIncrement = 0.0025;
 const friction = 0.00125;
 const rotateSpeed = 0.004;
 const keys = { w: false, a: false, d: false, shift: false, c: false, space: false, r: false };
-
+let controlState = 'boat';
 
 document.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
@@ -154,22 +154,47 @@ let originalCameraPosition = new THREE.Vector3();
 let originalCameraLookAt = new THREE.Vector3();
 let sideViewDirection = -1;
 
-
+// Weapon Wheel Elements
 const weaponWheel = document.createElement('div');
 weaponWheel.style.position = 'absolute';
 weaponWheel.style.top = '50%';
 weaponWheel.style.left = '50%';
 weaponWheel.style.transform = 'translate(-50%, -50%)';
-weaponWheel.style.width = '300px';
-weaponWheel.style.height = '300px';
+weaponWheel.style.width = '200px';
+weaponWheel.style.height = '200px';
 weaponWheel.style.borderRadius = '50%';
 weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-weaponWheel.style.display = 'none'; 
+weaponWheel.style.display = 'none'; // Initially hidden
 document.body.appendChild(weaponWheel);
+
+// Weapon wheel sections
+const weaponSections = 3;
+const sectionAngle = 360 / weaponSections;
+const weaponSectionElements = []; // Store section elements
+
+for (let i = 0; i < weaponSections; i++) {
+    const section = document.createElement('div');
+    section.style.position = 'absolute';
+    section.style.width = '100%';
+    section.style.height = '100%';
+    section.style.clipPath = `polygon(50% 50%, ${50 + 50 * Math.cos((i * sectionAngle) * Math.PI / 180)}% ${50 + 50 * Math.sin((i * sectionAngle) * Math.PI / 180)}%, ${50 + 50 * Math.cos(((i + 1) * sectionAngle) * Math.PI / 180)}% ${50 + 50 * Math.sin(((i + 1) * sectionAngle) * Math.PI / 180)}%)`;
+    section.style.backgroundColor = `rgba(100, 100, 100, 0.7)`;
+
+    section.addEventListener('mouseover', () => {
+        section.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+    });
+
+    section.addEventListener('mouseout', () => {
+        section.style.backgroundColor = `rgba(100, 100, 100, 0.7)`;
+    });
+
+    weaponWheel.appendChild(section);
+    weaponSectionElements.push(section); 
+}
 
 function animate() {
     if (model) {
-        
+        if (controlState === 'boat') {
             if (keys.w && moveSpeed < maxSpeed) {
                 moveSpeed += speedIncrement;
             }
@@ -204,7 +229,6 @@ function animate() {
 
                 camera.position.copy(finalCameraPosition);
                 camera.lookAt(boatPosition);
-                weaponWheel.style.display = 'none'; 
             } else if (cameraView === 'side') {
                 const sideOffset = new THREE.Vector3(28 * sideViewDirection, 10, 0);
                 const rotationMatrix = new THREE.Matrix4();
@@ -236,7 +260,7 @@ function animate() {
                 cameraZoomDistance = Math.max(cameraZoomDistance - zoomSpeedMove, minZoom);
                 controls.enabled = false;
             }
-        
+        }
 
         if (keys.c) {
             keys.c = false;
