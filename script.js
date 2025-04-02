@@ -126,7 +126,7 @@ let speedIncrement = 0.0025;
 const friction = 0.00125;
 const rotateSpeed = 0.004;
 const keys = { w: false, a: false, d: false, shift: false, c: false, space: false, r: false };
-let controlState = 'boat';
+
 
 document.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
@@ -169,7 +169,7 @@ document.body.appendChild(weaponWheel);
 
 function animate() {
     if (model) {
-        if (controlState === 'boat') {
+        
             if (keys.w && moveSpeed < maxSpeed) {
                 moveSpeed += speedIncrement;
             }
@@ -204,6 +204,7 @@ function animate() {
 
                 camera.position.copy(finalCameraPosition);
                 camera.lookAt(boatPosition);
+                weaponWheel.style.display = 'none'; 
             } else if (cameraView === 'side') {
                 const sideOffset = new THREE.Vector3(28 * sideViewDirection, 10, 0);
                 const rotationMatrix = new THREE.Matrix4();
@@ -214,7 +215,7 @@ function animate() {
                 camera.position.copy(sideCameraPosition);
                 camera.lookAt(boatPosition);
 
-                // Weapon wheel logic
+                
                 if (keys.shift) {
                     weaponWheel.style.display = 'block';
                 } else {
@@ -235,7 +236,7 @@ function animate() {
                 cameraZoomDistance = Math.max(cameraZoomDistance - zoomSpeedMove, minZoom);
                 controls.enabled = false;
             }
-        }
+        
 
         if (keys.c) {
             keys.c = false;
