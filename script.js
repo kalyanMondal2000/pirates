@@ -164,7 +164,30 @@ weaponWheel.style.height = '300px';
 weaponWheel.style.borderRadius = '50%';
 weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
 weaponWheel.style.display = 'none'; 
+weaponWheel.style.cursor = 'pointer'; 
 document.body.appendChild(weaponWheel);
+
+
+const createLine = (angle) => {
+  const line = document.createElement('div');
+  line.style.position = 'absolute';
+  line.style.top = '50%';
+  line.style.left = '50%';
+  line.style.width = '2px';
+  line.style.height = '50%';
+  line.style.backgroundColor = 'white';
+  line.style.transformOrigin = 'top';
+  line.style.transform = `rotate(${angle}deg)`;
+  weaponWheel.appendChild(line);
+  return line;
+};
+
+const lines = [];
+for (let i = 0; i < 3; i++) {
+  lines.push(createLine(i * 120));
+}
+
+
 
 
 function animate() {
