@@ -198,6 +198,7 @@ const createWeapon = (weapon, angle) => {
   option.addEventListener('mouseover', () => {
     console.log(`Selected weapon: ${weapon}`);
     weaponWheel.style.display = 'none';
+
   });
   return option;
 };
@@ -246,6 +247,7 @@ function animate() {
                 camera.position.copy(finalCameraPosition);
                 camera.lookAt(boatPosition);
             } else if (cameraView === 'side') {
+                
                 const sideOffset = new THREE.Vector3(28 * sideViewDirection, 10, 0);
                 const rotationMatrix = new THREE.Matrix4();
                 rotationMatrix.extractRotation(model.matrixWorld);
