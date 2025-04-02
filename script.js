@@ -164,7 +164,7 @@ weaponWheel.style.width = '200px';
 weaponWheel.style.height = '200px';
 weaponWheel.style.borderRadius = '50%';
 weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-weaponWheel.style.display = 'none'; // Initially hidden
+weaponWheel.style.display = 'none'; 
 document.body.appendChild(weaponWheel);
 
 function animate() {
@@ -214,7 +214,7 @@ function animate() {
                 camera.position.copy(sideCameraPosition);
                 camera.lookAt(boatPosition);
 
-                // Weapon wheel logic
+                
                 if (keys.shift) {
                     weaponWheel.style.display = 'block';
                 } else {
