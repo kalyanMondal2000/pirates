@@ -26,7 +26,7 @@ controls.panSpeed = 0.1;
 const gltfLoader = new GLTFLoader();
 const fbxLoader = new FBXLoader();
 
-let model, water, sky, island, island2;
+let model, water, sky, island;
 let boatHeight = -2;
 
 
@@ -61,7 +61,7 @@ loadIsland1('./miscAssets/island1.glb')
 
 scene.add(new THREE.AmbientLight());
 
-const waterGeometry = new THREE.PlaneGeometry(10000, 10000, 256, 256);
+const waterGeometry = new THREE.PlaneGeometry(5000, 5000, 256, 256);
 const waterTexture = new THREE.TextureLoader().load('waternormals.jpg');
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 
