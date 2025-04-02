@@ -185,6 +185,28 @@ for (let i = 0; i < 3; i++) {
   lines.push(createLine(i * 120));
 }
 
+const weapons = ['mako missile', 'septic strike', 'calamari catapult'];
+const createWeapon = (weapon, angle) => {
+  const option = document.createElement('div');
+  option.textContent = weapon;
+  option.style.position = 'fixed';
+  option.style.color = 'white';
+  option.style.transformOrigin = 'center';
+  option.style.transform = `translate(110%, 700%) rotate(${angle}deg) translateY(-100px) rotate(-${angle}deg)`;
+  weaponWheel.appendChild(option);
+
+  option.addEventListener('mouseover', () => {
+    console.log(`Selected weapon: ${weapon}`);
+    weaponWheel.style.display = 'none';
+  });
+  return option;
+};
+
+for (let i = 0; i < weapons.length; i++) {
+  createWeapon(weapons[i], i * 120);
+}
+
+
 
 function animate() {
     if (model) {
