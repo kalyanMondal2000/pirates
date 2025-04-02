@@ -164,9 +164,7 @@ weaponWheel.style.height = '300px';
 weaponWheel.style.borderRadius = '50%';
 weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
 weaponWheel.style.display = 'none'; 
-weaponWheel.style.cursor = 'pointer'; 
 document.body.appendChild(weaponWheel);
-
 
 const createLine = (angle) => {
   const line = document.createElement('div');
@@ -186,8 +184,6 @@ const lines = [];
 for (let i = 0; i < 3; i++) {
   lines.push(createLine(i * 120));
 }
-
-
 
 
 function animate() {
