@@ -213,7 +213,6 @@ function animate() {
                 camera.position.copy(sideCameraPosition);
                 camera.lookAt(boatPosition);
 
-                // Weapon wheel logic
                 if (keys.shift) {
                     weaponWheel.style.display = 'block';
                 } else {
