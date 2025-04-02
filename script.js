@@ -166,6 +166,7 @@ weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
 weaponWheel.style.display = 'none'; 
 document.body.appendChild(weaponWheel);
 
+
 function animate() {
     if (model) {
         if (controlState === 'boat') {
