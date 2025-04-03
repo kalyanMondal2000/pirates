@@ -128,54 +128,10 @@ const rotateSpeed = 0.004;
 const keys = { w: false, a: false, d: false, shift: false, c: false, space: false, r: false };
 let controlState = 'boat';
 
-
-let projectileArrow = null;
-let arrowHeight = 10;
-
-
 document.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
     if (keys.hasOwnProperty(key)) keys[key] = true;
-
-    if (selectedWeapon && event.key.toLowerCase() === 'q') {
-        arrowHeight += 1;
-        if (projectileArrow) {
-            projectileArrow.position.y = arrowHeight;
-        }
-    }
-
-    if (selectedWeapon && event.key.toLowerCase() === 'e') {
-        arrowHeight -= 1;
-        if (projectileArrow) {
-            projectileArrow.position.y = arrowHeight;
-        }
-    }
 });
-
-function createProjectileArrow() {
-    const arrowShape = new THREE.CurvePath();
-    const startPoint = new THREE.Vector3(model.position.x, model.position.y, model.position.z);
-    const controlPoint = new THREE.Vector3(10, 20, 0);
-    const endPoint = new THREE.Vector3(20, 0, 0);
-
-    const quadraticBezierCurve = new THREE.QuadraticBezierCurve3(startPoint, controlPoint, endPoint);
-    arrowShape.add(quadraticBezierCurve);
-
-    const points = arrowShape.getPoints(10);
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-
-    projectileArrow = new THREE.Line(geometry, material);
-    projectileArrow.position.copy(boatPosition);
-    projectileArrow.position.y = arrowHeight;
-
-    const rotationMatrix = new THREE.Matrix4();
-    rotationMatrix.extractRotation(model.matrixWorld);
-    projectileArrow.applyMatrix4(rotationMatrix);
-
-    scene.add(projectileArrow);
-}
-
 
 document.addEventListener("keyup", (event) => {
     const key = event.key.toLowerCase();
@@ -406,25 +362,8 @@ function animate() {
 
                 if (keys.shift) {
                     weaponWheel.style.display = 'block';
-                    weaponWheel.style.display = 'block';
-                   if(selectedWeapon && !projectileArrow){
-                     createProjectileArrow();
-                   }
-                   if(projectileArrow){
-                     projectileArrow.position.copy(boatPosition);
-                     projectileArrow.position.y = arrowHeight;
-
-                     const rotationMatrix = new THREE.Matrix4();
-                     rotationMatrix.extractRotation(model.matrixWorld);
-                     projectileArrow.applyMatrix4(rotationMatrix);
-                   }
                 } else {
                     weaponWheel.style.display = 'none';
-                    if(projectileArrow){
-                        scene.remove(projectileArrow);
-                        projectileArrow = null;
-                        arrowHeight = 10;
-                      }
                 }
             }
 
