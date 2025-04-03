@@ -154,14 +154,14 @@ document.addEventListener("keydown", (event) => {
 
 function createProjectileArrow() {
     const arrowShape = new THREE.CurvePath();
-    const startPoint = new THREE.Vector3(0, 0, 0);
+    const startPoint = new THREE.Vector3(model.position.x, model.position.y, model.position.z);
     const controlPoint = new THREE.Vector3(10, 20, 0);
     const endPoint = new THREE.Vector3(20, 0, 0);
 
     const quadraticBezierCurve = new THREE.QuadraticBezierCurve3(startPoint, controlPoint, endPoint);
     arrowShape.add(quadraticBezierCurve);
 
-    const points = arrowShape.getPoints(50);
+    const points = arrowShape.getPoints(10);
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
 
