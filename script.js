@@ -4,6 +4,10 @@ import { FBXLoader } from '../three/examples/jsm/loaders/FBXLoader.js';
 import { Water } from './three/examples/jsm/objects/Water.js';
 import { Sky } from './three/examples/jsm/objects/Sky.js';
 import { OrbitControls } from "./three/examples/jsm/controls/OrbitControls.js";
+import { GUI } from '/lil-gui.module.min.js'
+
+import Floater from '/floater.js'
+import GerstnerWater from '/gerstnerWater.js'
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -40,52 +44,25 @@ gltfLoader.load("./ship/ship.glb", (object) => {
     model.getWorldPosition(boatPosition);
 });
 
-const loadIsland1 = (url) => {
-    gltfLoader.load(url, (obj) => {
-        island = obj.scene;
-        scene.add(island);
-        island.scale.set(0.125, 0.125, 0.125);
 
-        let islandPosition = new THREE.Vector3();
-        let validPosition = false;
 
-        while (!validPosition) {
-            islandPosition.z = Math.random() * (1000 + 1000) - 1000;
-            islandPosition.x = Math.random() * (1000 + 1000) - 1000;
-
-            const distanceToBoat = boatPosition.distanceTo(islandPosition);
-
-            if (distanceToBoat > 50) {
-                validPosition = true;
-            }
-        }
-
-        island.position.copy(islandPosition);
-        island.rotation.y = 0;
-    });
-};
-
-for (let x = 0; x <= 150; x++) {
-    loadIsland1('./miscAssets/island1.glb');
-}
 
 scene.add(new THREE.AmbientLight());
 
-const waterGeometry = new THREE.PlaneGeometry(5000, 5000, 256, 256);
-const waterTexture = new THREE.TextureLoader().load('waternormals.jpg');
-waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
+const earth = new THREE.Group()
+scene.add(earth)
+const gui = new GUI()
 
-water = new Water(waterGeometry, {
-    textureWidth: 1024,
-    textureHeight: 1024,
-    waterNormals: waterTexture,
-    sunDirection: new THREE.Vector3(),
-    sunColor: 0x001e0f,
-    distortionScale: 2.5,
-    fog: scene.fog !== undefined
-});
-water.rotation.x = -Math.PI / 2;
-scene.add(water);
+const gerstnerWater = new GerstnerWater(gui)
+earth.add(gerstnerWater.water)
+
+
+
+
+
+
+
+
 
 sky = new Sky();
 sky.scale.setScalar(10000);
@@ -107,7 +84,7 @@ function updateSun() {
     const theta = THREE.MathUtils.degToRad(parameters.azimuth);
     const sun = new THREE.Vector3().setFromSphericalCoords(1, phi, theta);
     sky.material.uniforms['sunPosition'].value.copy(sun);
-    water.material.uniforms['sunDirection'].value.copy(sun).normalize();
+    
     if (renderTarget) {
         renderTarget.dispose();
     }
@@ -154,159 +131,6 @@ let originalCameraPosition = new THREE.Vector3();
 let originalCameraLookAt = new THREE.Vector3();
 let sideViewDirection = -1;
 
-const weaponWheel = document.createElement('div');
-weaponWheel.style.position = 'absolute';
-weaponWheel.style.top = '50%';
-weaponWheel.style.left = '50%';
-weaponWheel.style.transform = 'translate(-50%, -50%)';
-weaponWheel.style.width = '300px';
-weaponWheel.style.height = '300px';
-weaponWheel.style.borderRadius = '50%';
-weaponWheel.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-weaponWheel.style.display = 'none'; 
-document.body.appendChild(weaponWheel);
-
-const createLine = (angle) => {
-  const line = document.createElement('div');
-  line.style.position = 'absolute';
-  line.style.top = '50%';
-  line.style.left = '50%';
-  line.style.width = '2px';
-  line.style.height = '50%';
-  line.style.backgroundColor = 'white';
-  line.style.transformOrigin = 'top';
-  line.style.transform = `rotate(${angle}deg)`;
-  weaponWheel.appendChild(line);
-  return line;
-};
-
-const lines = [];
-for (let i = 0; i < 3; i++) {
-  lines.push(createLine(i * 120));
-}
-
-const weapons = ['weapon 1', 'weapon 2', 'weapon 3'];
-
-function updateWeaponInfo() {
-    if (selectedWeapon) {
-        weaponInfo.style.display = 'block';
-        weaponInfo.textContent = `Selected weapon: ${selectedWeapon}`;
-        weaponStats.innerHTML = `
-            <div>Damage:</div>
-            ${damageBar.outerHTML}
-            <div>Cost:</div>
-            ${costBar.outerHTML}
-            <div>Accuracy:</div>
-            ${accuracyBar.outerHTML}
-            <div>Range:</div>
-            ${rangeBar.outerHTML}
-        `;
-
-        const { damage, cost, accuracy, range } = weaponData[selectedWeapon];
-        damageFill.style.width = `${damage * 100}%`;
-        costFill.style.width = `${cost * 100}%`;
-        accuracyFill.style.width = `${accuracy * 100}%`;
-        rangeFill.style.width = `${range * 100}%`;
-    } else {
-        weaponInfo.style.display = 'none';
-    }
-}
-
-
-const weaponInfo = document.createElement('div');
-weaponInfo.style.position = 'absolute';
-weaponInfo.style.top = '10px';
-weaponInfo.style.right = '10px';
-weaponInfo.style.color = 'white';
-weaponInfo.style.padding = '10px';
-weaponInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-weaponInfo.style.borderRadius = '5px';
-weaponInfo.style.display = 'none'; 
-document.body.appendChild(weaponInfo);
-
-const weaponStats = document.createElement('div');
-weaponStats.style.marginTop = '40px';
-weaponInfo.appendChild(weaponStats);
-
-const damageBar = document.createElement('div');
-damageBar.style.width = '100%';
-damageBar.style.height = '50px';
-damageBar.style.backgroundColor = 'gray';
-weaponStats.appendChild(damageBar);
-
-const damageFill = document.createElement('div');
-damageFill.style.height = '100%';
-damageFill.style.backgroundColor = 'red';
-damageBar.appendChild(damageFill);
-
-const costBar = document.createElement('div');
-costBar.style.width = '100%';
-costBar.style.height = '60px';
-costBar.style.backgroundColor = 'gray';
-weaponStats.appendChild(costBar);
-
-const costFill = document.createElement('div');
-costFill.style.height = '100%';
-costFill.style.backgroundColor = 'blue';
-costBar.appendChild(costFill);
-
-const accuracyBar = document.createElement('div');
-accuracyBar.style.width = '100%';
-accuracyBar.style.height = '70px';
-accuracyBar.style.backgroundColor = 'gray';
-weaponStats.appendChild(accuracyBar);
-
-const accuracyFill = document.createElement('div');
-accuracyFill.style.height = '100%';
-accuracyFill.style.backgroundColor = 'green';
-accuracyBar.appendChild(accuracyFill);
-
-const rangeBar = document.createElement('div');
-rangeBar.style.width = '100%';
-rangeBar.style.height = '80px';
-rangeBar.style.backgroundColor = 'gray';
-weaponStats.appendChild(rangeBar);
-
-const rangeFill = document.createElement('div');
-rangeFill.style.height = '100%';
-rangeFill.style.backgroundColor = 'orange';
-rangeBar.appendChild(rangeFill);
-
-let selectedWeapon = null;
-
-const weaponData = {
-    'mako missile': { damage: 0.8, cost: 0.5, accuracy: 0.9, range: 0.7 },
-    'septic strike': { damage: 0.6, cost: 0.3, accuracy: 0.6, range: 0.8 },
-    'calamari catapult': { damage: 0.9, cost: 0.7, accuracy: 0.4, range: 0.5 },
-};
-
-
-const createWeapon = (weapon, angle) => {
-  const option = document.createElement('div');
-  option.textContent = weapon;
-  option.style.position = 'fixed';
-  option.style.color = 'white';
-  option.style.transformOrigin = 'center';
-  option.style.transform = `translate(110%, 700%) rotate(${angle}deg) translateY(-100px) rotate(-${angle}deg)`;
-  weaponWheel.appendChild(option);
-
-  option.addEventListener('mouseover', () => {
-    console.log(`Selected weapon: ${weapon}`);
-    weaponWheel.style.display = 'none';
-    selectedWeapon = weapon;
-    updateWeaponInfo();
-});
-
-  return option;
-};
-
-for (let i = 0; i < weapons.length; i++) {
-  createWeapon(weapons[i], i * 120);
-}
-
-
-
-
 
 function animate() {
     if (model) {
@@ -345,9 +169,7 @@ function animate() {
 
                 camera.position.copy(finalCameraPosition);
                 camera.lookAt(boatPosition);
-                weaponWheel.style.display = 'none'
-                selectedWeapon = null;
-                weaponInfo.style.display = 'none';
+                
 
             } else if (cameraView === 'side') {
                 
@@ -359,12 +181,6 @@ function animate() {
 
                 camera.position.copy(sideCameraPosition);
                 camera.lookAt(boatPosition);
-
-                if (keys.shift) {
-                    weaponWheel.style.display = 'block';
-                } else {
-                    weaponWheel.style.display = 'none';
-                }
             }
 
             if (!Object.values(keys).some(key => key)) {
@@ -399,8 +215,7 @@ function animate() {
         }
     }
 
-    water.material.uniforms['time'].value += 0.01;
-    water.material.uniforms['size'].value = 5;
+
     renderer.render(scene, camera);
     if (controls.enabled) controls.update();
 }
