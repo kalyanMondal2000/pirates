@@ -81,7 +81,7 @@ water = new Water(waterGeometry, {
     waterNormals: waterTexture,
     sunDirection: new THREE.Vector3(),
     sunColor: 0x001e0f,
-    distortionScale: 1,
+    distortionScale: 2.5,
     fog: scene.fog !== undefined
 });
 water.rotation.x = -Math.PI / 2;
@@ -186,6 +186,101 @@ for (let i = 0; i < 3; i++) {
 }
 
 const weapons = ['mako missile', 'septic strike', 'calamari catapult'];
+
+function updateWeaponInfo() {
+    if (selectedWeapon) {
+        weaponInfo.style.display = 'block';
+        weaponInfo.textContent = `Selected weapon: ${selectedWeapon}`;
+        weaponStats.innerHTML = `
+            <div>Damage:</div>
+            ${damageBar.outerHTML}
+            <div>Cost:</div>
+            ${costBar.outerHTML}
+            <div>Accuracy:</div>
+            ${accuracyBar.outerHTML}
+            <div>Range:</div>
+            ${rangeBar.outerHTML}
+        `;
+
+        const { damage, cost, accuracy, range } = weaponData[selectedWeapon];
+        damageFill.style.width = `${damage * 100}%`;
+        costFill.style.width = `${cost * 100}%`;
+        accuracyFill.style.width = `${accuracy * 100}%`;
+        rangeFill.style.width = `${range * 100}%`;
+    } else {
+        weaponInfo.style.display = 'none';
+    }
+}
+
+
+const weaponInfo = document.createElement('div');
+weaponInfo.style.position = 'absolute';
+weaponInfo.style.top = '10px';
+weaponInfo.style.right = '10px';
+weaponInfo.style.color = 'white';
+weaponInfo.style.padding = '10px';
+weaponInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+weaponInfo.style.borderRadius = '5px';
+weaponInfo.style.display = 'none'; 
+document.body.appendChild(weaponInfo);
+
+const weaponStats = document.createElement('div');
+weaponStats.style.marginTop = '10px';
+weaponInfo.appendChild(weaponStats);
+
+const damageBar = document.createElement('div');
+damageBar.style.width = '100%';
+damageBar.style.height = '10px';
+damageBar.style.backgroundColor = 'gray';
+weaponStats.appendChild(damageBar);
+
+const damageFill = document.createElement('div');
+damageFill.style.height = '100%';
+damageFill.style.backgroundColor = 'red';
+damageBar.appendChild(damageFill);
+
+const costBar = document.createElement('div');
+costBar.style.width = '100%';
+costBar.style.height = '10px';
+costBar.style.backgroundColor = 'gray';
+weaponStats.appendChild(costBar);
+
+const costFill = document.createElement('div');
+costFill.style.height = '100%';
+costFill.style.backgroundColor = 'blue';
+costBar.appendChild(costFill);
+
+const accuracyBar = document.createElement('div');
+accuracyBar.style.width = '100%';
+accuracyBar.style.height = '10px';
+accuracyBar.style.backgroundColor = 'gray';
+weaponStats.appendChild(accuracyBar);
+
+const accuracyFill = document.createElement('div');
+accuracyFill.style.height = '100%';
+accuracyFill.style.backgroundColor = 'green';
+accuracyBar.appendChild(accuracyFill);
+
+const rangeBar = document.createElement('div');
+rangeBar.style.width = '100%';
+rangeBar.style.height = '10px';
+rangeBar.style.backgroundColor = 'gray';
+weaponStats.appendChild(rangeBar);
+
+const rangeFill = document.createElement('div');
+rangeFill.style.height = '100%';
+rangeFill.style.backgroundColor = 'orange';
+rangeBar.appendChild(rangeFill);
+
+let selectedWeapon = null;
+
+const weaponData = {
+    'mako missile': { damage: 0.8, cost: 0.5, accuracy: 0.9, range: 0.7 },
+    'septic strike': { damage: 0.6, cost: 0.3, accuracy: 0.6, range: 0.8 },
+    'calamari catapult': { damage: 0.9, cost: 0.7, accuracy: 0.4, range: 0.5 },
+};
+
+
 const createWeapon = (weapon, angle) => {
   const option = document.createElement('div');
   option.textContent = weapon;
@@ -198,14 +293,18 @@ const createWeapon = (weapon, angle) => {
   option.addEventListener('mouseover', () => {
     console.log(`Selected weapon: ${weapon}`);
     weaponWheel.style.display = 'none';
+    selectedWeapon = weapon;
+    updateWeaponInfo();
+});
 
-  });
   return option;
 };
 
 for (let i = 0; i < weapons.length; i++) {
   createWeapon(weapons[i], i * 120);
 }
+
+
 
 
 
@@ -246,6 +345,10 @@ function animate() {
 
                 camera.position.copy(finalCameraPosition);
                 camera.lookAt(boatPosition);
+                weaponWheel.style.display = 'none'
+                selectedWeapon = null;
+                weaponInfo.style.display = 'none';
+
             } else if (cameraView === 'side') {
                 
                 const sideOffset = new THREE.Vector3(28 * sideViewDirection, 10, 0);
