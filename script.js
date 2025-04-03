@@ -185,7 +185,7 @@ for (let i = 0; i < 3; i++) {
   lines.push(createLine(i * 120));
 }
 
-const weapons = ['mako missile', 'septic strike', 'calamari catapult'];
+const weapons = ['weapon 1', 'weapon 2', 'weapon 3'];
 
 function updateWeaponInfo() {
     if (selectedWeapon) {
@@ -225,12 +225,12 @@ weaponInfo.style.display = 'none';
 document.body.appendChild(weaponInfo);
 
 const weaponStats = document.createElement('div');
-weaponStats.style.marginTop = '10px';
+weaponStats.style.marginTop = '40px';
 weaponInfo.appendChild(weaponStats);
 
 const damageBar = document.createElement('div');
 damageBar.style.width = '100%';
-damageBar.style.height = '10px';
+damageBar.style.height = '50px';
 damageBar.style.backgroundColor = 'gray';
 weaponStats.appendChild(damageBar);
 
@@ -241,7 +241,7 @@ damageBar.appendChild(damageFill);
 
 const costBar = document.createElement('div');
 costBar.style.width = '100%';
-costBar.style.height = '10px';
+costBar.style.height = '60px';
 costBar.style.backgroundColor = 'gray';
 weaponStats.appendChild(costBar);
 
@@ -252,7 +252,7 @@ costBar.appendChild(costFill);
 
 const accuracyBar = document.createElement('div');
 accuracyBar.style.width = '100%';
-accuracyBar.style.height = '10px';
+accuracyBar.style.height = '70px';
 accuracyBar.style.backgroundColor = 'gray';
 weaponStats.appendChild(accuracyBar);
 
@@ -263,7 +263,7 @@ accuracyBar.appendChild(accuracyFill);
 
 const rangeBar = document.createElement('div');
 rangeBar.style.width = '100%';
-rangeBar.style.height = '10px';
+rangeBar.style.height = '80px';
 rangeBar.style.backgroundColor = 'gray';
 weaponStats.appendChild(rangeBar);
 
