@@ -26,17 +26,17 @@ controls.dampingFactor = 0.1;
 controls.enableZoom = true;
 controls.enablePan = true;
 controls.panSpeed = 0.1;
-controls.enabled = false; 
+controls.enabled = false;
 
 const gltfLoader = new GLTFLoader();
 
 let model, water, sky, island;
-let boatHeightOffset = -2; 
+let boatHeightOffset = -2;
 let waterLevel = 0;
 
 let boatPosition = new THREE.Vector3();
 let boatRotation = new THREE.Quaternion();
-let boatObject = null; 
+let boatObject = null;
 
 const earth = new THREE.Group()
 scene.add(earth)
@@ -76,7 +76,7 @@ gltfLoader.load("./ship/ship.glb", (gltf) => {
 scene.add(new THREE.AmbientLight(0x404040));
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
-directionalLight.position.set(5000, 5000, 5000).normalize(); 
+directionalLight.position.set(5000, 5000, 5000).normalize();
 scene.add(directionalLight);
 
 sky = new Sky();
@@ -108,16 +108,125 @@ updateSun();
 let moveSpeed = 0;
 let maxSpeed = 0.4;
 const minSpeed = 0;
-let speedDecrementRate = 0.002;  
+let speedDecrementRate = 0.002;
 let speedIncrement = 0.0025;
 const friction = 0.00125;
-const rotateSpeed = 0.4/1000000;
+const rotateSpeed = 0.4 / 1000000;
 const keys = { w: false, a: false, d: false, shift: false, c: false, space: false, r: false };
 let controlState = 'boat';
+
+// Weapon wheel variables
+let isWeaponWheelOpen = false;
+const weaponWheelRadius = 150; // Adjust as needed
+const numberOfSections = 3;
+const sectionAngle = (2 * Math.PI) / numberOfSections;
+const weaponWheelCenter = new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2);
+const wheelColor = 0x444444;
+const hoverColor = 0x666666;
+const weaponWheelElements = [];
+let hoveredSection = -1;
+
+// Configuration variables for weapon wheel content
+const weaponImages = [
+    '/weapon1.png', // Path to image for section 1
+    '/weapon2.png', // Path to image for section 2
+    '/weapon3.png', // Path to image for section 3
+];
+const weaponNames = [
+    'Weapon One',
+    'Weapon Two',
+    'Weapon Three',
+];
+
+// Create the weapon wheel elements (initially hidden)
+function createWeaponWheel() {
+    const canvas = document.createElement('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.zIndex = '10'; // Ensure it's on top
+    canvas.style.display = 'none'; // Initially hidden
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    const drawWheel = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < numberOfSections; i++) {
+            const startAngle = i * sectionAngle;
+            const endAngle = (i + 1) * sectionAngle;
+
+            ctx.beginPath();
+            ctx.arc(weaponWheelCenter.x, weaponWheelCenter.y, weaponWheelRadius, startAngle, endAngle);
+            ctx.lineTo(weaponWheelCenter.x, weaponWheelCenter.y);
+            ctx.closePath();
+
+            ctx.fillStyle = hoveredSection === i ? hoverColor : wheelColor;
+            ctx.fill();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Load and draw images
+            const img = new Image();
+            img.onload = () => {
+                const angle = startAngle + sectionAngle / 2;
+                const x = weaponWheelCenter.x + Math.cos(angle) * (weaponWheelRadius / 2);
+                const y = weaponWheelCenter.y + Math.sin(angle) * (weaponWheelRadius / 2);
+                const imageSize = 30; // Adjust as needed
+                ctx.drawImage(img, x - imageSize / 2, y - imageSize / 2, imageSize, imageSize);
+
+                // Draw weapon names
+                ctx.fillStyle = 'white';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                const textYOffset = imageSize / 2 + 15;
+                ctx.fillText(weaponNames[i], x, y + textYOffset);
+            };
+            img.src = weaponImages[i % weaponImages.length]; // Cycle through images if needed
+        }
+    };
+
+    canvas.addEventListener('mousemove', (event) => {
+        if (isWeaponWheelOpen) {
+            const angle = Math.atan2(event.clientY - weaponWheelCenter.y, event.clientX - weaponWheelCenter.x);
+            let section = Math.floor((angle + Math.PI) / sectionAngle);
+            if (section < 0) section += numberOfSections;
+            hoveredSection = section % numberOfSections;
+            drawWheel();
+        }
+    });
+
+    canvas.addEventListener('mouseout', () => {
+        if (isWeaponWheelOpen) {
+            hoveredSection = -1;
+            drawWheel();
+        }
+    });
+
+    canvas.addEventListener('click', () => {
+        if (isWeaponWheelOpen && hoveredSection !== -1) {
+            console.log(`Selected weapon: ${weaponNames[hoveredSection]}`);
+            isWeaponWheelOpen = false;
+            canvas.style.display = 'none';
+        }
+    });
+
+    weaponWheelElements.push(canvas);
+    drawWheel(); // Initial draw to potentially load images
+}
+
+createWeaponWheel();
 
 document.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
     if (keys.hasOwnProperty(key)) keys[key] = true;
+
+    if (key === 'shift' && cameraView === 'side') {
+        isWeaponWheelOpen = true;
+        weaponWheelElements[0].style.display = 'block';
+    }
 });
 
 document.addEventListener("keyup", (event) => {
@@ -136,6 +245,10 @@ document.addEventListener("keyup", (event) => {
                 }
             };
             requestAnimationFrame(slowDown);
+        }
+        if (key === 'shift' && isWeaponWheelOpen) {
+            isWeaponWheelOpen = false;
+            weaponWheelElements[0].style.display = 'none';
         }
     }
 });
@@ -163,7 +276,7 @@ function animate() {
 
     delta = clock.getDelta()
     if (boatObject && floaters[controlledBoatId]) {
-        if (controlState === 'boat') {
+        if (controlState === 'boat' && !isWeaponWheelOpen) {
             if (keys.w) {
                 floaters[controlledBoatId].power = Math.max(floaters[controlledBoatId].power - 0.1, -2.5);
                 moveSpeed += speedIncrement;
@@ -171,7 +284,7 @@ function animate() {
             }
 
             if (keys.a) {
-               // targetLean = moveSpeed/4
+                // targetLean = moveSpeed/4
                 boatObject.rotation.y += rotateSpeed;
                 floaters[controlledBoatId].heading += 0.015;
             } else if (keys.d) {
@@ -182,7 +295,7 @@ function animate() {
                 //targetLean = Math.sin(currentRotation) * 0.0125;
             }
 
-           // boatObject.rotation.z += (targetLean - boatObject.rotation.z) * leanSpeed;
+            // boatObject.rotation.z += (targetLean - boatObject.rotation.z) * leanSpeed;
 
             boatObject.getWorldPosition(boatPosition);
             boatObject.getWorldQuaternion(boatRotation);
@@ -258,10 +371,6 @@ function animate() {
         })
 
         if (floaters[controlledBoatId] && boatObject) {
-            //earth.position.x = -floaters[controlledBoatId].object.position.x;
-            //earth.position.z = -floaters[controlledBoatId].object.position.z;
-
-            // Adjust the boat's vertical position based on the floater's calculated height
             const targetYPosition = floaters[controlledBoatId].object.position.y + boatHeightOffset - 2; // Adjust for the model's initial offset
             boatObject.position.y += (targetYPosition - boatObject.position.y) * 1; // Smoothly interpolate the boat's Y position
         }
