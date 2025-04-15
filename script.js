@@ -26,12 +26,12 @@ controls.dampingFactor = 0.1;
 controls.enableZoom = true;
 controls.enablePan = true;
 controls.panSpeed = 0.1;
-controls.enabled = false; // Disable OrbitControls initially for boat following
+controls.enabled = false; 
 
 const gltfLoader = new GLTFLoader();
 
 let model, water, sky, island;
-let boatHeightOffset = -0.5; 
+let boatHeightOffset = -2; 
 let waterLevel = 0;
 
 let boatPosition = new THREE.Vector3();
@@ -52,7 +52,7 @@ let controlledBoatId = 0;
 
 gltfLoader.load("./ship/ship.glb", (gltf) => {
     model = gltf.scene;
-    model.scale.set(0.5, 0.5, 0.5);
+    model.scale.set(0.75, 0.75, 0.75);
     model.position.y -= 1;
     const group = new THREE.Group();
     group.add(model);
@@ -108,7 +108,7 @@ updateSun();
 let moveSpeed = 0;
 let maxSpeed = 0.4;
 const minSpeed = 0;
-let speedDecrementRate = 0.002; 
+let speedDecrementRate = 0.002;  
 let speedIncrement = 0.0025;
 const friction = 0.00125;
 const rotateSpeed = 0.4/1000000;
@@ -144,12 +144,12 @@ let currentRotation = 0;
 const rotationSpeed = 0.1;
 let targetLean = 0;
 const leanSpeed = 0.05;
-let cameraZoomDistance = 80;
+let cameraZoomDistance = 100;
 const zoomSpeedIdle = 0.1250;
 const zoomSpeedMove = 0.1250;
 
-const minZoom = 60;
-const maxZoom = 80;
+const minZoom = 80;
+const maxZoom = 100;
 
 let cameraView = 'follow';
 let originalCameraPosition = new THREE.Vector3();
@@ -189,7 +189,7 @@ function animate() {
 
             if (cameraView === 'follow') {
                 // Calculate the desired camera position relative to the boat
-                const cameraOffset = new THREE.Vector3(2, 25, cameraZoomDistance);
+                const cameraOffset = new THREE.Vector3(2, 35, cameraZoomDistance);
 
                 // Create a rotation matrix from the boat's quaternion
                 const rotationMatrix = new THREE.Matrix4();
