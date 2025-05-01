@@ -8,7 +8,6 @@ import Floater from '/floater.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 20, -50);
 
 const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#canvas"), antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -85,7 +84,7 @@ gltfLoader.load("./ship/ship.glb", (gltf) => {
 // Ambient + directional light
 scene.add(new THREE.AmbientLight(0x404040, 0.6));
 
-const directionalLight = new THREE.DirectionalLight('green', 0.5);
+const directionalLight = new THREE.DirectionalLight(0x404040, 0.6);
 directionalLight.position.set(5000, 5000, 5000).normalize();
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
@@ -100,7 +99,7 @@ scene.add(directionalLight);
 
 // Sky + environment lighting
 sky = new Sky();
-sky.scale.setScalar(1000);
+sky.scale.setScalar(100000000);
 scene.add(sky);
 
 const skyUniforms = sky.material.uniforms;
@@ -117,7 +116,7 @@ function updateSun() {
     const theta = THREE.MathUtils.degToRad(parameters.azimuth);
     sun.setFromSphericalCoords(1, phi, theta);
     sky.material.uniforms['sunPosition'].value.copy(sun);
-    directionalLight.position.copy(sun.clone().multiplyScalar(5000));
+    directionalLight.position.copy(sun.clone().multiplyScalar(1000000));
     const envMap = pmremGenerator.fromScene(sky).texture;
     scene.environment = envMap;
 }
@@ -128,13 +127,13 @@ let maxSpeed = 0.4;
 const minSpeed = 0;
 let speedDecrementRate = 0.002;
 let speedIncrement = 0.0025;
-const frictionCoefficient = -100; // Adjust this value to control the rate of slowing down
+const frictionCoefficient = -100;
 const rotateSpeed = 0.4 / 1000000;
 const keys = { w: false, a: false, d: false, shift: false, c: false, space: false, r: false };
 let controlState = 'boat';
 
 let isWeaponWheelOpen = false;
-const weaponWheelRadius = 150; // Adjust as needed
+const weaponWheelRadius = 150;
 const numberOfSections = 3;
 const sectionAngle = (2 * Math.PI) / numberOfSections;
 const weaponWheelCenter = new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2);
@@ -142,7 +141,7 @@ const wheelColor = 0x444444;
 const hoverColor = 0x666666;
 const weaponWheelElements = [];
 const weaponImages = ['/weapon1.png', '/weapon2.png', '/weapon3.png'];
-const weaponNames = ['Weapon 1', 'Weapon 2', 'Weapon 3']; // Add names for your weapons
+const weaponNames = ['Weapon 1', 'Weapon 2', 'Weapon 3'];
 
 let hoveredSection = -1;
 let weaponWheelCanvas;
@@ -150,9 +149,9 @@ let weaponWheelContext;
 
 // Zoom variables
 let cameraZoomDistance = 100;
-const zoomSpeedFactor = 0.2; 
+const zoomSpeedFactor = 0.2;
 const minZoom = 100;
-const maxZoom = 150; 
+const maxZoom = 150;
 let targetZoomDistance = cameraZoomDistance;
 
 function drawWeaponWheel() {
@@ -272,11 +271,11 @@ document.addEventListener("keyup", (event) => {
 });
 
 document.addEventListener("mousedown", () => {
-    controls.enabled = true; // Enable OrbitControls when the mouse is pressed
+    controls.enabled = true;
 });
 
 document.addEventListener("mouseup", () => {
-    controls.enabled = false; // Disable OrbitControls when the mouse is released
+    controls.enabled = false;
 });
 
 let currentRotation = 0;
@@ -287,30 +286,36 @@ let cameraView = 'follow';
 let originalCameraPosition = new THREE.Vector3();
 let originalCameraLookAt = new THREE.Vector3();
 let sideViewDirection = -1;
+let transitioning = false; // Add this flag
+let transitionDuration = 2; // in seconds
+let transitionStartTime = 0;
+let initialCameraPosition = new THREE.Vector3(); // Store initial camera position
+let initialCameraTarget = new THREE.Vector3();   // Store initial camera target
+
 
 const clock = new THREE.Clock();
 let delta = 0;
 function animate() {
     delta = clock.getDelta();
     if (boatObject && floaters[controlledBoatId]) {
-        let isBoatMoving = keys.w || keys.a || keys.d; // Check if the boat is moving
+        let isBoatMoving = keys.w || keys.a || keys.d;
 
         if (controlState === 'boat' && !isWeaponWheelOpen) {
             if (keys.w) {
                 floaters[controlledBoatId].power = Math.max(floaters[controlledBoatId].power - 0.1, -2.5);
                 currentSpeed = Math.min(currentSpeed + speedIncrement, maxSpeed);
-                targetZoomDistance = Math.max(minZoom, cameraZoomDistance - currentSpeed * 100 * zoomSpeedFactor); 
+                targetZoomDistance = Math.max(minZoom, cameraZoomDistance - currentSpeed * 100 * zoomSpeedFactor);
             } else {
                 if (currentSpeed > 0) {
                     currentSpeed = Math.max(currentSpeed - speedDecrementRate, 0);
                     floaters[controlledBoatId].power = Math.min(floaters[controlledBoatId].power + 0.025, 0);
-                    targetZoomDistance = Math.min(maxZoom, cameraZoomDistance + speedDecrementRate * 100 * zoomSpeedFactor); 
+                    targetZoomDistance = Math.min(maxZoom, cameraZoomDistance + speedDecrementRate * 100 * zoomSpeedFactor);
                 } else if (currentSpeed < 0) {
                     currentSpeed = Math.min(currentSpeed + speedDecrementRate, 0);
                     floaters[controlledBoatId].power = Math.max(floaters[controlledBoatId].power - 0.025, 0);
-                    targetZoomDistance = Math.min(maxZoom, cameraZoomDistance + speedDecrementRate * 100 * zoomSpeedFactor); 
+                    targetZoomDistance = Math.min(maxZoom, cameraZoomDistance + speedDecrementRate * 100 * zoomSpeedFactor);
                 } else {
-                    targetZoomDistance = maxZoom; 
+                    targetZoomDistance = maxZoom;
                 }
             }
 
@@ -336,32 +341,57 @@ function animate() {
 
             // Update the boat's vertical position
             if (floaters[controlledBoatId] && boatObject) {
-                const targetYPosition = floaters[controlledBoatId].object.position.y + boatHeightOffset - 2; 
-                boatObject.position.y += (targetYPosition - boatObject.position.y) * 1; 
+                const targetYPosition = floaters[controlledBoatId].object.position.y + boatHeightOffset - 2;
+                boatObject.position.y += (targetYPosition - boatObject.position.y) * 1;
             }
         }
 
         // Handle camera following or orbiting
+        let targetCameraPosition = new THREE.Vector3();
+        let targetLookAt = new THREE.Vector3();
+
         if (isBoatMoving) {
             // Camera follows the boat in fixed position
-            const cameraOffset = new THREE.Vector3(2, 35, cameraZoomDistance);
+            const cameraOffset = new THREE.Vector3(2, 50, cameraZoomDistance);
             const rotationMatrix = new THREE.Matrix4();
             rotationMatrix.makeRotationFromQuaternion(boatRotation);
             const rotatedCameraOffset = cameraOffset.applyMatrix4(rotationMatrix);
-            camera.position.copy(boatPosition.clone().add(rotatedCameraOffset));
-            camera.lookAt(boatPosition);
-            controls.target.copy(boatPosition);
-            controls.update();
+            targetCameraPosition = boatPosition.clone().add(rotatedCameraOffset);
+            targetLookAt = boatPosition;
         } else {
-            // Camera can orbit the boat freely
-            controls.enabled = true;  // Allow orbit controls
-            controls.target.copy(boatPosition); // Keep the target aimed at the boat
-            controls.update(); // Update controls regardless of boat moving
+            targetCameraPosition = camera.position.clone();
+            targetLookAt = boatPosition;
         }
+
+        if (transitioning) {
+            const elapsed = clock.getElapsedTime() - transitionStartTime;
+            const ratio = Math.min(1, elapsed / transitionDuration);
+
+            camera.position.lerpVectors(initialCameraPosition, targetCameraPosition, ratio);
+            controls.target.lerpVectors(initialCameraTarget, targetLookAt, ratio);
+
+            if (ratio >= 1) {
+                transitioning = false;
+                controls.enabled = !isBoatMoving;
+                if (!isBoatMoving) {
+                    controls.reset();
+                }
+            }
+        } else {
+             camera.position.copy(targetCameraPosition);
+             controls.target.copy(targetLookAt);
+             controls.enabled = !isBoatMoving;
+        }
+
+        controls.update();
 
         // Toggle camera view with key 'c'
         if (keys.c) {
             keys.c = false;
+            transitioning = true;
+            transitionStartTime = clock.getElapsedTime();
+            initialCameraPosition = camera.position.clone();
+            initialCameraTarget = controls.target.clone();
             cameraView = cameraView === 'follow' ? 'side' : 'follow';
         }
 
@@ -369,13 +399,6 @@ function animate() {
         if (keys.r && cameraView === 'side') {
             keys.r = false;
             sideViewDirection *= -1;
-        }
-
-        // Enable or disable controls based on user input
-        if (!isBoatMoving) {
-            controls.enabled = true; 
-        } else {
-            controls.enabled = false; 
         }
     }
 
@@ -390,3 +413,15 @@ function renderLoop() {
 }
 
 renderLoop();
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (weaponWheelCanvas) {
+        weaponWheelCanvas.width = window.innerWidth;
+        weaponWheelCanvas.height = window.innerHeight;
+        weaponWheelCenter.set(window.innerWidth / 2, window.innerHeight / 2);
+        drawWeaponWheel();
+    }
+});
