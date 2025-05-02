@@ -310,4 +310,16 @@ export default class GerstnerWater {
     update(delta) {
         this.water.material.uniforms['time'].value += delta
     }
+
+getHeightAt(x, z) {
+  let height = 0;
+  const time = this.clock ? this.clock.getElapsedTime() : 0;
+  for (const wave of this.waves) {
+    const dirX = Math.cos(wave.angle);
+    const dirZ = Math.sin(wave.angle);
+    const phase = (dirX * x + dirZ * z) / wave.wavelength + wave.speed * time + wave.phase;
+    height += wave.amplitude * Math.sin(phase);
+  }
+  return height;
+}
 }

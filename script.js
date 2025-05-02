@@ -7,14 +7,13 @@ import GerstnerWater from '/gerstnerWater.js';
 import Floater from '/floater.js';
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000000);
+camera.position.set(5, 50, 250);
 const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#canvas"), antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor("#7CB9E8", 1);
 
-// Lighting enhancements
 renderer.physicallyCorrectLights = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1;
@@ -54,7 +53,7 @@ let controlledBoatId = 0;
 
 gltfLoader.load("./ship/ship.glb", (gltf) => {
     model = gltf.scene;
-    model.scale.set(0.75, 0.75, 0.75);
+    model.scale.set(1, 1,1);
     model.position.y -= 1;
 
     // Enable shadows on all meshes
@@ -150,8 +149,8 @@ let weaponWheelContext;
 // Zoom variables
 let cameraZoomDistance = 100;
 const zoomSpeedFactor = 0.2;
-const minZoom = 100;
-const maxZoom = 150;
+const minZoom = 150;
+const maxZoom = 200;
 let targetZoomDistance = cameraZoomDistance;
 
 function drawWeaponWheel() {
@@ -346,43 +345,29 @@ function animate() {
             }
         }
 
-        // Handle camera following or orbiting
+        // Handle camera following or orbiting with smooth transitions
         let targetCameraPosition = new THREE.Vector3();
         let targetLookAt = new THREE.Vector3();
 
         if (isBoatMoving) {
             // Camera follows the boat in fixed position
-            const cameraOffset = new THREE.Vector3(2, 50, cameraZoomDistance);
+            const cameraOffset = new THREE.Vector3(4, 80, cameraZoomDistance);
             const rotationMatrix = new THREE.Matrix4();
             rotationMatrix.makeRotationFromQuaternion(boatRotation);
             const rotatedCameraOffset = cameraOffset.applyMatrix4(rotationMatrix);
             targetCameraPosition = boatPosition.clone().add(rotatedCameraOffset);
             targetLookAt = boatPosition;
         } else {
+            // When boat is idle, keep camera position as is but look at the boat smoothly
             targetCameraPosition = camera.position.clone();
             targetLookAt = boatPosition;
         }
 
-        if (transitioning) {
-            const elapsed = clock.getElapsedTime() - transitionStartTime;
-            const ratio = Math.min(1, elapsed / transitionDuration);
-
-            camera.position.lerpVectors(initialCameraPosition, targetCameraPosition, ratio);
-            controls.target.lerpVectors(initialCameraTarget, targetLookAt, ratio);
-
-            if (ratio >= 1) {
-                transitioning = false;
-                controls.enabled = !isBoatMoving;
-                if (!isBoatMoving) {
-                    controls.reset();
-                }
-            }
-        } else {
-             camera.position.copy(targetCameraPosition);
-             controls.target.copy(targetLookAt);
-             controls.enabled = !isBoatMoving;
-        }
-
+        // Smoothly interpolate camera position and look target
+        const lerpFactor = 0.1; // Adjust between 0 and 1 for desired smoothness
+        camera.position.lerp(targetCameraPosition, lerpFactor);
+        controls.target.lerp(targetLookAt, lerpFactor);
+        controls.enabled = !isBoatMoving;
         controls.update();
 
         // Toggle camera view with key 'c'
@@ -405,8 +390,6 @@ function animate() {
     renderer.render(scene, camera);
     gerstnerWater.update(delta);
 }
-
-
 function renderLoop() {
     requestAnimationFrame(renderLoop);
     animate();
