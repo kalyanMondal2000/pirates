@@ -110,7 +110,7 @@ sunLight.shadow.radius = 2;
 sunLight.shadow.bias = -0.0001;
 scene.add(sunLight);
 
-// --- Sky ---
+
 const sky = new Sky();
 sky.scale.setScalar(1000);
 scene.add(sky);
@@ -121,16 +121,14 @@ skyUniforms['rayleigh'].value = 2;
 skyUniforms['mieCoefficient'].value = 0.005;
 
 const sun = new THREE.Vector3();
-const phi = THREE.MathUtils.degToRad(90 - 10); // elevation
-const theta = THREE.MathUtils.degToRad(120);   // azimuth
+const phi = THREE.MathUtils.degToRad(90 - 10); 
+const theta = THREE.MathUtils.degToRad(120);   
 
 sun.setFromSphericalCoords(1, phi, theta);
 sky.material.uniforms['sunPosition'].value.copy(sun);
 
-// --- Position the sun light to match sky sun ---
 sunLight.position.set(sun.x * 1000, sun.y * 1000, sun.z * 1000);
 
-// === ✨ END — Realistic Sky + Lighting ===
 
 let maxSpeed = 0.4;
 let speedDecrementRate = 0.002;
