@@ -4,7 +4,7 @@ import { OrbitControls } from "./three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from '/lil-gui.module.min.js';
 import GerstnerWater from '/gerstnerWater.js';
 import Floater from '/floater.js';
-import { Sky } from "../three/examples/jsm/objects/Sky.js"; // ← Added Sky import
+import { Sky } from "../three/examples/jsm/objects/Sky.js"; 
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000000);
@@ -89,7 +89,7 @@ gltfLoader.load("./ship/ship.glb", (gltf) => {
 }, (xhr) => {
     console.log('Boat model loading progress:', (xhr.loaded / xhr.total * 100) + '% loaded');
 }, (error) => {
-    console.error('An error happened while loading the GLTF model:', error);
+    console.error( error);
 });
 
 
@@ -163,7 +163,7 @@ const numberOfClouds = 50;
 const minCloudHeight = 300; 
 const maxCloudHeight = 500; 
 
-function spawnCloudsOverWater() {
+function spawnClouds() {
     const cloudModelPath = './low_poly_cloud.glb';
 
     for (let i = 0; i < numberOfClouds; i++) {
@@ -180,12 +180,12 @@ function spawnCloudsOverWater() {
 
             scene.add(cloud);
         }, undefined, (error) => {
-            console.error('An error happened while loading a cloud GLTF model:', error);
+            console.error( error);
         });
     }
 }
 
-spawnCloudsOverWater();
+spawnClouds();
 
 const clock = new THREE.Clock();
 let delta = 0;
