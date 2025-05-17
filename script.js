@@ -1,11 +1,11 @@
-import * as THREE from "../pirates/three/build/three.module.js";
-import { GLTFLoader } from "../pirates/three/examples/jsm/loaders/GLTFLoader.js";
-import { GUI } from '/pirates/lil-gui.module.min.js';
-import { OrbitControls } from "../pirates/three/examples/jsm/controls/OrbitControls.js";
-import { Sky } from "../pirates/three/examples/jsm/objects/Sky.js";
+import * as THREE from "../three/build/three.module.js";
+import { GLTFLoader } from "../three/examples/jsm/loaders/GLTFLoader.js";
+import { GUI } from '/lil-gui.module.min.js';
+import { OrbitControls } from "../three/examples/jsm/controls/OrbitControls.js";
+import { Sky } from "../three/examples/jsm/objects/Sky.js";
 
-import GerstnerWater from "/pirates/gerstnerWater.js";
-import Floater from "/pirates/floater.js";
+import GerstnerWater from "/gerstnerWater.js";
+import Floater from "/floater.js";
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
