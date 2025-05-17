@@ -3,9 +3,9 @@ import { GLTFLoader } from "../three/examples/jsm/loaders/GLTFLoader.js";
 import { GUI } from '/lil-gui.module.min.js';
 import { OrbitControls } from "../three/examples/jsm/controls/OrbitControls.js";
 import { Sky } from "../three/examples/jsm/objects/Sky.js";
-/*
+
 import GerstnerWater from "/gerstnerWater.js";
-import Floater from "/floater.js";*/
+import Floater from "/floater.js";
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -94,7 +94,7 @@ sunLight.shadow.bias = -0.0001;
 scene.add(sunLight);
 
 const sky = new Sky();
-sky.scale.setScalar(10000);
+sky.scale.setScalar(20000);
 scene.add(sky);
 const skyUniforms = sky.material.uniforms;
 skyUniforms['turbidity'].value = 10;
@@ -277,6 +277,7 @@ function animate() {
 
     let targetCamPos = new THREE.Vector3();
     let targetLookAt = new THREE.Vector3();
+    
     if (isMoving) {
       const offset = new THREE.Vector3(4,75,cameraZoomDistance);
       const rotMat = new THREE.Matrix4();

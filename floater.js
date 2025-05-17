@@ -68,16 +68,16 @@ export default class Floater {
         this.cogHelper = new THREE.ArrowHelper(
             new THREE.Vector3(),
             new THREE.Vector3(),
-            7.5,
-            0x00ff00
+            0,
+           0x000000
         )
         earth.add(this.cogHelper)
 
         this.velocityHelper = new THREE.ArrowHelper(
             new THREE.Vector3(),
             new THREE.Vector3(),
-            7.5,
-            0xff00ff
+            0,
+            0x000000
         )
         earth.add(this.velocityHelper)
 
@@ -85,8 +85,8 @@ export default class Floater {
             const waveNormalHelper = new THREE.ArrowHelper(
                 new THREE.Vector3(),
                 new THREE.Vector3(),
-                5,
-                0xffff00
+                0,
+                0x000000 
             )
             waveNormalHelper.position.copy(fp.position)
             this.waveNormalHelpers.push(waveNormalHelper)
@@ -95,8 +95,8 @@ export default class Floater {
             const gravitySlideHelper = new THREE.ArrowHelper(
                 new THREE.Vector3(0, 1, 0),
                 new THREE.Vector3(),
-                5,
-                0x00ffff
+                0,
+               0x000000
             )
             gravitySlideHelper.position.copy(fp.position)
             this.gravitySlideHelpers.push(gravitySlideHelper)
