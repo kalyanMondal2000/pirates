@@ -197,20 +197,11 @@ creakSound.loop = true;
 
 let currentSound = null;
 
-function playSplash() {
+function playSplash(splashSound) {
   if (currentSound) { currentSound.pause(); currentSound.currentTime = 0; }
   currentSound = splashSound;
   currentSound.loop = false;
   currentSound.play();
-}
-function playCreak() {
-  if (currentSound) { currentSound.pause(); currentSound.currentTime = 0; }
-  currentSound = creakSound;
-  currentSound.loop = true;
-  currentSound.play();
-}
-function stopSound() {
-  if (currentSound) { currentSound.pause(); currentSound.currentTime = 0; }
 }
 
 function startGame() {
@@ -294,6 +285,61 @@ function animate() {
     controls.target.lerp(targetLookAt, lerpFac);
     controls.enabled = !isMoving;
     controls.update();
+
+    if (!window.cannonballs) window.cannonballs = [];
+    if (!window.cannonCooldown) window.cannonCooldown = 0;
+
+  
+    document.onkeydown = function(e) {
+      if (e.code === 'Space' && window.cannonCooldown <= 0 && boatObject) {
+      playSplash(new Audio('./music/splash.mp3'));
+      const geometry = new THREE.SphereGeometry(1, 16, 16);
+      const material = new THREE.MeshStandardMaterial({ color: 0x222222 });
+      const cannonball = new THREE.Mesh(geometry, material);
+      cannonball.castShadow = true;
+      cannonball.receiveShadow = true;
+
+      
+      const boatWorldPos = new THREE.Vector3();
+      const boatWorldQuat = new THREE.Quaternion();
+      boatObject.getWorldPosition(boatWorldPos);
+      boatObject.getWorldQuaternion(boatWorldQuat);
+
+    
+      const sideOffset = new THREE.Vector3(10, 5, 0);
+      sideOffset.applyQuaternion(boatWorldQuat);
+
+      
+      cannonball.position.copy(boatWorldPos).add(sideOffset);
+
+      const velocity = new THREE.Vector3(5, 3.5, 0);
+      velocity.applyQuaternion(boatObject.quaternion);
+      velocity.multiplyScalar(10); 
+
+      window.cannonballs.push({ mesh: cannonball, velocity, alive: true, life: 0 });
+      scene.add(cannonball);
+
+      window.cannonCooldown = 0.5; 
+      }
+    };
+
+    
+    for (let i = window.cannonballs.length - 1; i >= 0; i--) {
+      const cb = window.cannonballs[i];
+      if (!cb.alive) continue;
+      cb.mesh.position.addScaledVector(cb.velocity, delta);
+      cb.velocity.y -= 9.8 * delta * 2; 
+      cb.life += delta;
+      
+      if (cb.mesh.position.y < waterLevel - 10 || cb.life > 8) {
+      scene.remove(cb.mesh);
+      cb.alive = false;
+      window.cannonballs.splice(i, 1);
+      }
+    }
+
+    
+    if (window.cannonCooldown > 0) window.cannonCooldown -= delta;
   }
 
   renderer.render(scene, camera);
