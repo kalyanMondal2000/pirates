@@ -1,8 +1,8 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/controls/OrbitControls.js';
-import { Sky } from 'https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/objects/Sky.js';
-import { GUI } from 'https://cdn.jsdelivr.net/npm/lil-gui@0.17.0/dist/lil-gui.min.js';
+import * as THREE from "../three/build/three.module.js";
+import { GLTFLoader } from "../three/examples/jsm/loaders/GLTFLoader.js";
+import { GUI } from '/lil-gui.module.min.js';
+import { OrbitControls } from "../three/examples/jsm/controls/OrbitControls.js";
+import { Sky } from "../three/examples/jsm/objects/Sky.js";
 
 import GerstnerWater from "/gerstnerWater.js";
 import Floater from "/floater.js";
