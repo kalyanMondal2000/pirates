@@ -68,14 +68,14 @@ export default class Floater {
         this.object.traverse((child) => {
             if (child instanceof THREE.ArrowHelper) {
                 child.material.transparent = true
-                child.material.opacity = 0.5
+                child.material.opacity = 0.00005
             }
         })
 
         this.cogHelper = new THREE.ArrowHelper(
             new THREE.Vector3(),
             new THREE.Vector3(),
-            0.00000001,
+            0.000000000001,
            0x000000
         )
         earth.add(this.cogHelper)
@@ -83,7 +83,7 @@ export default class Floater {
         this.velocityHelper = new THREE.ArrowHelper(
             new THREE.Vector3(),
             new THREE.Vector3(),
-            0.00000001,
+            0.000000000001,
             0x000000
         )
         earth.add(this.velocityHelper)
@@ -92,7 +92,7 @@ export default class Floater {
             const waveNormalHelper = new THREE.ArrowHelper(
                 new THREE.Vector3(),
                 new THREE.Vector3(),
-                0.00000001,
+                0.00000000001,
                 0x000000 
             )
             waveNormalHelper.position.copy(fp.position)
@@ -102,7 +102,7 @@ export default class Floater {
             const gravitySlideHelper = new THREE.ArrowHelper(
                 new THREE.Vector3(0, 1, 0),
                 new THREE.Vector3(),
-                0.00000001,
+                0.00000000001,
                0x000000
             )
             gravitySlideHelper.position.copy(fp.position)
