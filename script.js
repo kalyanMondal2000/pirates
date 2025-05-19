@@ -1,4 +1,3 @@
-
 import * as THREE from "../three/build/three.module.js";
 import { GLTFLoader } from "../three/examples/jsm/loaders/GLTFLoader.js";
 import { GUI } from '/lil-gui.module.min.js';
@@ -8,18 +7,17 @@ import { Sky } from "../three/examples/jsm/objects/Sky.js";
 import GerstnerWater from "/gerstnerWater.js";
 import Floater from "/floater.js";
 
+
 let port = null; 
 let reader = null;
 let inputStreamDone = null;
 let writer = null;
-
 async function connectSerial() {
   try {
     if (!navigator.serial) {
       alert('Web Serial API not supported in this browser. Try Chrome or Edge.');
       return;
     }
-
     let selectedPort;
     try {
       selectedPort = await navigator.serial.requestPort();
@@ -34,38 +32,30 @@ async function connectSerial() {
         return;
       }
     }
-
     if (!selectedPort) {
       console.log('No serial port selected by the user.');
       alert('No serial port selected. Please try again and choose a port.');
       return;
     }
-
     port = selectedPort;
     await port.open({ baudRate: 115200 });
-
     const textDecoder = new TextDecoderStream();
     inputStreamDone = port.readable.pipeTo(textDecoder.writable);
     reader = textDecoder.readable.getReader();
-
     const textEncoder = new TextEncoderStream();
-    outputStream = textEncoder.readable.pipeTo(port.writable);
+    //outputStream = textEncoder.readable.pipeTo(port.writable);
     writer = textEncoder.writable.getWriter();
-
     console.log('Serial port opened successfully!');
     startReading();
-
     port.addEventListener('disconnect', () => {
       console.log('Serial port disconnected.');
       disconnectSerial(); 
     });
-
   } catch (error) {
     console.error('Error opening serial port after selection:', error);
     alert(`Error opening serial port after selection: ${error.message}`);
   }
 }
-
 async function startReading() {
   while (port && port.readable) {
     try {
@@ -78,7 +68,6 @@ async function startReading() {
         const lines = value.split('\r\n'); 
         lines.forEach(line => {
           if (line.trim()) { 
-            
             parseAndProcessData(line.trim()); 
           }
         });
@@ -89,16 +78,13 @@ async function startReading() {
     }
   }
 }
-
 function parseAndProcessData(line) {
   try {
     const trimmed = line.trim();
     const match = trimmed.match(/"?(pitch|roll)"?\s*:\s*(-?\d+(\.\d+)?)/i);
-
     if (match) {
       const key = match[1].toLowerCase();
       const parsedValue = parseFloat(match[2]);
-
       if (key === 'pitch') {
         handlePitchUpdate(parsedValue);
       } else if (key === 'roll') {
@@ -109,31 +95,43 @@ function parseAndProcessData(line) {
     console.error('Failed to parse line:', line, err);
   }
 }
-
+let right = null;
+let left = null;
 function handlePitchUpdate(pitchValue) {
   console.log('pitch:', pitchValue);
-  let pitch = pitchValue;;
+  let pitch = pitchValue;
+  if(pitch > 100){
+    if(pitch<170){
+      left = true;
+  }else{left = false;}
+}else{left=false;}
+if(pitch < -100){
+  if(pitch > -170){
+    right = true;
+  }else{right = false;}
+}else{right=false;}
 
 }
 let forward = null;
+
 function handleRollUpdate(rollValue) {
   console.log('roll:', rollValue);
   let roll = rollValue;
-  if(roll >120){
-    if(roll < 165){
-         forward = true; 
-    }else{forward = false;}
-  }else{forward = false;}
-}
-
-async function sendSerialData(data) {
-  if (writer && port && port.writable) {
-    await writer.write(data + '\n'); // Assuming you want to send with a newline
+  if (roll > 1) {
+    if (roll < 165) {
+      forward = true; 
+    } else {
+      forward = false;
+    }
   } else {
-    console.log('Serial port not open or writable.');
+    forward = false;
   }
 }
-
+async function sendSerialData(data) {
+  if (writer && port && port.writable) {
+    await writer.write(data + '\n');
+  }
+}
 async function disconnectSerial() {
   if (reader) {
     await reader.cancel();
@@ -145,7 +143,6 @@ async function disconnectSerial() {
   if (writer) {
     await writer.close();
     writer = null;
-    outputStream = null;
   }
   if (port) {
     await port.close();
@@ -153,13 +150,13 @@ async function disconnectSerial() {
     console.log('Serial port closed.');
   }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   const startButton = document.getElementById('startButton');
-  startButton.addEventListener('click', connectSerial); // Connect connectSerial to the start button
+  startButton.addEventListener('click', connectSerial);
 });
 
-let sinkingSpeed = 0.5;
+// Scene setup
+let sinkingSpeed = 0.5; // Speed at which boats sink
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 camera.position.set(5, 80, 200);
@@ -172,7 +169,6 @@ renderer.toneMappingExposure = 1.2;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
@@ -181,8 +177,8 @@ controls.enablePan = true;
 controls.maxPolarAngle = Math.PI / 2 - 0.1;
 controls.minDistance = 100;
 controls.maxDistance = 500;
-const gltfLoader = new GLTFLoader();
 
+const gltfLoader = new GLTFLoader();
 
 let playerBoatModel;
 let boatHeightOffset = -3;
@@ -255,17 +251,13 @@ skyUniforms['turbidity'].value = 10;
 skyUniforms['rayleigh'].value = 2;
 skyUniforms['mieCoefficient'].value = 0.005;
 
-
 const parameters = {
     elevation: 2,
     azimuth: 180
 };
-
-
 const sun = new THREE.Vector3();
 const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
 const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-
 sun.setFromSphericalCoords(1, phi, theta);
 sky.material.uniforms['sunPosition'].value.copy(sun);
 const sunLightPos = new THREE.Vector3();
@@ -285,6 +277,7 @@ document.addEventListener("mousedown", () => { controls.enabled = true; });
 document.addEventListener("mouseup", () => { controls.enabled = false; });
 const clock = new THREE.Clock();
 
+// Music setup (unchanged)
 const musicTracks = [
     './music/music1.mp3',
     './music/music2.mp3',
@@ -404,7 +397,7 @@ function loadOpponentShips(count) {
             earth.add(group);
             const floater = new Floater(earth, group, gerstnerWater, true);
             floaters.push(floater);
-            opponentShips.push({ group: group, floater: floater, model: model, hitCount: 0, sinking: false });
+            opponentShips.push({ group: group, floater: floater, model: model, hitCount: 0, sinking: false, sinkProgress: 0 });
         });
     }
 }
@@ -430,7 +423,7 @@ function loadSailboats(count) {
             earth.add(group);
             const floater = new Floater(earth, group, gerstnerWater, true);
             floaters.push(floater);
-            sailboats.push({ group: group, floater: floater, model: model, hitCount: 0, sinking: false });
+            sailboats.push({ group: group, floater: floater, model: model, hitCount: 0, sinking: false, sinkProgress: 0 });
         });
     }
 }
@@ -456,15 +449,15 @@ function loadSailships(count) {
             earth.add(group);
             const floater = new Floater(earth, group, gerstnerWater, true);
             floaters.push(floater);
-            sailships.push({ group: group, floater: floater, model: model, hitCount: 0, sinking: false });
+            sailships.push({ group: group, floater: floater, model: model, hitCount: 0, sinking: false, sinkProgress: 0 });
         });
     }
 }
 
-
-
+// Main animation loop
 function animate() {
     const delta = clock.getDelta();
+
     if (playerBoatObject && floaters[controlledBoatId]) {
         creakSound.play();
         const currentFloater = floaters[controlledBoatId];
@@ -500,16 +493,16 @@ function animate() {
                 }
             }
             currentFloater.speed = currentSpeed;
-            if (keys.a) {
+            if (keys.a || left) {
                 playerBoatObject.rotation.y += rotateSpeed;
                 currentFloater.heading += 0.015;
-            } else if (keys.d) {
+            } else if (keys.d||right) {
                 playerBoatObject.rotation.y -= rotateSpeed;
                 currentFloater.heading -= 0.015;
             }
             playerBoatObject.getWorldQuaternion(playerBoatRotation);
 
-            // Update all floaters, including opponent ships, sailboats, and sailships
+            // Update all floaters
             floaters.forEach(floater => floater.update(delta));
 
             if (playerBoatObject) {
@@ -518,11 +511,11 @@ function animate() {
             }
         }
 
-
+        // Camera control
         let targetCamPos = new THREE.Vector3();
         let targetLookAt = new THREE.Vector3();
 
-        if (isMoving || forward) {
+        if (isMoving || forward || left || right) {
             const offset = new THREE.Vector3(4, 65, cameraZoomDistance);
             const rotMat = new THREE.Matrix4();
             rotMat.makeRotationFromQuaternion(playerBoatRotation);
@@ -539,10 +532,9 @@ function animate() {
         controls.enabled = !isMoving;
         controls.update();
 
+        // Shooting cannonballs
         if (!window.cannonballs) window.cannonballs = [];
         if (!window.cannonCooldown) window.cannonCooldown = 0;
-
-
         document.onkeydown = function (e) {
             if (e.code === 'Space' && window.cannonCooldown <= 0 && playerBoatObject) {
                 playSplash(new Audio('./music/splash.mp3'));
@@ -551,32 +543,23 @@ function animate() {
                 const cannonball = new THREE.Mesh(geometry, material);
                 cannonball.castShadow = true;
                 cannonball.receiveShadow = true;
-
-
                 const boatWorldPos = new THREE.Vector3();
                 const boatWorldQuat = new THREE.Quaternion();
                 playerBoatObject.getWorldPosition(boatWorldPos);
                 playerBoatObject.getWorldQuaternion(boatWorldQuat);
-
-
                 const sideOffset = new THREE.Vector3(10, 5, 0);
                 sideOffset.applyQuaternion(boatWorldQuat);
-
-
                 cannonball.position.copy(boatWorldPos).add(sideOffset);
-
                 const velocity = new THREE.Vector3(5, 3.5, 0);
                 velocity.applyQuaternion(playerBoatObject.quaternion);
                 velocity.multiplyScalar(10);
-
                 window.cannonballs.push({ mesh: cannonball, velocity, alive: true, life: 0 });
                 scene.add(cannonball);
-
                 window.cannonCooldown = 0.5;
             }
         };
 
-
+        // Handle cannonballs
         for (let i = window.cannonballs.length - 1; i >= 0; i--) {
             const cb = window.cannonballs[i];
             if (!cb.alive) continue;
@@ -584,11 +567,11 @@ function animate() {
             cb.velocity.y -= 9.8 * delta * 2;
             cb.life += delta;
 
-            
             let collision = false;
             let hitBoat = null;
             let boatType = null;
 
+            // Check collision with opponent ships
             for (let j = 0; j < opponentShips.length; j++) {
                 const enemyBoat = opponentShips[j];
                 const distance = cb.mesh.position.distanceTo(enemyBoat.group.position);
@@ -599,6 +582,7 @@ function animate() {
                     break;
                 }
             }
+            // Check collision with sailboats
             if (!collision) {
                 for (let j = 0; j < sailboats.length; j++) {
                     const enemyBoat = sailboats[j];
@@ -611,6 +595,7 @@ function animate() {
                     }
                 }
             }
+            // Check collision with sailships
             if (!collision) {
                 for (let j = 0; j < sailships.length; j++) {
                     const enemyBoat = sailships[j];
@@ -624,27 +609,17 @@ function animate() {
                 }
             }
 
-
             if (collision) {
-
                 if (hitBoat) {
                     hitBoat.hitCount++;
-                    if (hitBoat.hitCount >= 3) {
+                    if (hitBoat.hitCount >= 3 && !hitBoat.sinking) {
                         hitBoat.sinking = true;
-                        scene.remove(hitBoat.group); // Remove boat from scene.
-                        // Remove the boat from its respective array
-                        if (boatType === 'opponentShips') {
-                            opponentShips.splice(opponentShips.indexOf(hitBoat), 1);
-                        } else if (boatType === 'sailboats') {
-                            sailboats.splice(sailboats.indexOf(hitBoat), 1);
-                        } else if (boatType === 'sailships') {
-                            sailships.splice(sailships.indexOf(hitBoat), 1);
-                        }
+                        hitBoat.sinkProgress = 0; // start sinking
                     }
                 }
             }
 
-
+            // Remove cannonball if out of water or too old
             if (cb.mesh.position.y < waterLevel - 10 || cb.life > 8) {
                 scene.remove(cb.mesh);
                 cb.alive = false;
@@ -652,16 +627,56 @@ function animate() {
             }
         }
 
-
         if (window.cannonCooldown > 0) window.cannonCooldown -= delta;
     }
 
-    renderer.render(scene, camera);
+    // Handle sinking of boats
+    opponentShips.forEach(boat => {
+        if (boat.sinking) {
+            boat.sinkProgress += delta;
+            boat.group.position.y -= sinkingSpeed * delta; // sink rate
+            // Optional: tilt boat for effect
+            // boat.group.rotation.x += delta * 0.2;
+            if (boat.group.position.y < waterLevel + fallDepth) {
+                // fully sunk, remove from scene
+                scene.remove(boat.group);
+                // Remove from array to prevent further updates
+                const index = opponentShips.indexOf(boat);
+                if (index !== -1) opponentShips.splice(index, 1);
+            }
+        }
+    });
+
+    // For sailboats
+    sailboats.forEach(boat => {
+        if (boat.sinking) {
+            boat.sinkProgress += delta;
+            boat.group.position.y -= sinkingSpeed * delta;
+            if (boat.group.position.y < waterLevel + fallDepth) {
+                scene.remove(boat.group);
+                const index = sailboats.indexOf(boat);
+                if (index !== -1) sailboats.splice(index, 1);
+            }
+        }
+    });
+    // For sailships
+    sailships.forEach(boat => {
+        if (boat.sinking) {
+            boat.sinkProgress += delta;
+            boat.group.position.y -= sinkingSpeed * delta;
+            if (boat.group.position.y < waterLevel + fallDepth) {
+                scene.remove(boat.group);
+                const index = sailships.indexOf(boat);
+                if (index !== -1) sailships.splice(index, 1);
+            }
+        }
+    });
+
     gerstnerWater.update(delta);
+    renderer.render(scene, camera);
 }
 
-
-
+// Main render loop
 function renderLoop() {
     requestAnimationFrame(renderLoop);
     animate();
