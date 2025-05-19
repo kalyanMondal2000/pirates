@@ -155,8 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
   startButton.addEventListener('click', connectSerial);
 });
 
-// Scene setup
-let sinkingSpeed = 0.5; // Speed at which boats sink
+
+let sinkingSpeed = 0.5; 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 camera.position.set(5, 80, 200);
@@ -277,7 +277,7 @@ document.addEventListener("mousedown", () => { controls.enabled = true; });
 document.addEventListener("mouseup", () => { controls.enabled = false; });
 const clock = new THREE.Clock();
 
-// Music setup (unchanged)
+
 const musicTracks = [
     './music/music1.mp3',
     './music/music2.mp3',
@@ -334,6 +334,7 @@ muteBtn.style.border = 'none';
 muteBtn.style.borderRadius = '5px';
 muteBtn.style.display = 'none'; 
 document.body.appendChild(muteBtn);
+
 muteBtn.addEventListener('click', () => {
     isMuted = !isMuted;
     musicPlayers.forEach(a => { a.muted = isMuted; });
@@ -461,7 +462,7 @@ function loadSailships(count) {
     }
 }
 
-// Main animation loop
+
 function animate() {
     const delta = clock.getDelta();
 
@@ -509,7 +510,7 @@ function animate() {
             }
             playerBoatObject.getWorldQuaternion(playerBoatRotation);
 
-            // Update all floaters
+          
             floaters.forEach(floater => floater.update(delta));
 
             if (playerBoatObject) {
@@ -518,7 +519,7 @@ function animate() {
             }
         }
 
-        // Camera control
+   
         let targetCamPos = new THREE.Vector3();
         let targetLookAt = new THREE.Vector3();
 
@@ -539,7 +540,7 @@ function animate() {
         controls.enabled = !isMoving;
         controls.update();
 
-        // Shooting cannonballs
+
         if (!window.cannonballs) window.cannonballs = [];
         if (!window.cannonCooldown) window.cannonCooldown = 0;
         document.onkeydown = function (e) {
@@ -566,7 +567,7 @@ function animate() {
             }
         };
 
-        // Handle cannonballs
+        
         for (let i = window.cannonballs.length - 1; i >= 0; i--) {
             const cb = window.cannonballs[i];
             if (!cb.alive) continue;
@@ -578,39 +579,42 @@ function animate() {
             let hitBoat = null;
             let boatType = null;
 
-            // Check collision with opponent ships
+            
             for (let j = 0; j < opponentShips.length; j++) {
                 const enemyBoat = opponentShips[j];
                 const distance = cb.mesh.position.distanceTo(enemyBoat.group.position);
-                if (distance < 100) { 
+                if (distance < 50) { 
                     collision = true;
                     hitBoat = enemyBoat;
                     boatType = 'opponentShips';
+                    console.log('Hit opponent ship!');
                     break;
                 }
             }
-            // Check collision with sailboats
+            
             if (!collision) {
                 for (let j = 0; j < sailboats.length; j++) {
                     const enemyBoat = sailboats[j];
                     const distance = cb.mesh.position.distanceTo(enemyBoat.group.position);
-                    if (distance < 100) {
+                    if (distance < 50) {
                         collision = true;
                         hitBoat = enemyBoat;
                         boatType = 'sailboats';
                         break;
+                        console.log('Hit opponent ship!');
                     }
                 }
             }
-            // Check collision with sailships
+            
             if (!collision) {
                 for (let j = 0; j < sailships.length; j++) {
                     const enemyBoat = sailships[j];
                     const distance = cb.mesh.position.distanceTo(enemyBoat.group.position);
-                    if (distance < 100) {
+                    if (distance < 50) {
                         collision = true;
                         hitBoat = enemyBoat;
                         boatType = 'sailships';
+                        console.log('Hit opponent ship!');
                         break;
                     }
                 }
@@ -621,12 +625,12 @@ function animate() {
                     hitBoat.hitCount++;
                     if (hitBoat.hitCount >= 3 && !hitBoat.sinking) {
                         hitBoat.sinking = true;
-                        hitBoat.sinkProgress = 0; // start sinking
+                        hitBoat.sinkProgress = 0; 
                     }
                 }
             }
 
-            // Remove cannonball if out of water or too old
+            
             if (cb.mesh.position.y < waterLevel - 10 || cb.life > 8) {
                 scene.remove(cb.mesh);
                 cb.alive = false;
@@ -637,24 +641,21 @@ function animate() {
         if (window.cannonCooldown > 0) window.cannonCooldown -= delta;
     }
 
-    // Handle sinking of boats
     opponentShips.forEach(boat => {
         if (boat.sinking) {
             boat.sinkProgress += delta;
-            boat.group.position.y -= sinkingSpeed * delta; // sink rate
-            // Optional: tilt boat for effect
-            // boat.group.rotation.x += delta * 0.2;
+            boat.group.position.y -= sinkingSpeed * delta; 
             if (boat.group.position.y < waterLevel + fallDepth) {
-                // fully sunk, remove from scene
+                
                 scene.remove(boat.group);
-                // Remove from array to prevent further updates
+              
                 const index = opponentShips.indexOf(boat);
                 if (index !== -1) opponentShips.splice(index, 1);
             }
         }
     });
 
-    // For sailboats
+
     sailboats.forEach(boat => {
         if (boat.sinking) {
             boat.sinkProgress += delta;
@@ -666,7 +667,7 @@ function animate() {
             }
         }
     });
-    // For sailships
+    
     sailships.forEach(boat => {
         if (boat.sinking) {
             boat.sinkProgress += delta;
@@ -683,7 +684,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// Main render loop
 function renderLoop() {
     requestAnimationFrame(renderLoop);
     animate();
