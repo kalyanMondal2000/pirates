@@ -332,6 +332,7 @@ muteBtn.style.backgroundColor = 'rgba(0,0,0,0.5)';
 muteBtn.style.color = 'white';
 muteBtn.style.border = 'none';
 muteBtn.style.borderRadius = '5px';
+muteBtn.style.display = 'none'; 
 document.body.appendChild(muteBtn);
 muteBtn.addEventListener('click', () => {
     isMuted = !isMuted;
@@ -341,11 +342,17 @@ muteBtn.addEventListener('click', () => {
 
 document.getElementById('startButton').addEventListener('click', () => {
     document.getElementById('startPage').style.display = 'none';
+    muteBtn.style.display = 'inline-block'; 
     startGame();
     if (!musicStarted && shuffledOrder.length > 0) {
         musicStarted = true;
         shuffledOrder[currentMusicIndex].play();
     }
+});
+muteBtn.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault(); 
+  }
 });
 
 let creakSound = new Audio('./music/creak.mp3');
