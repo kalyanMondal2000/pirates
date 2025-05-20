@@ -12,10 +12,11 @@ let port = null;
 let reader = null;
 let inputStreamDone = null;
 let writer = null;
+
 async function connectSerial() {
   try {
     if (!navigator.serial) {
-      alert('Web Serial API not supported in this browser. Try Chrome or Edge.');
+      alert('api not supported');
       return;
     }
     let selectedPort;
@@ -24,7 +25,7 @@ async function connectSerial() {
     } catch (error) {
       if (error.name === 'NotFoundError') {
         console.log('No serial port selected by the user.');
-        alert('No serial port selected. Please try again and choose a port.');
+        alert('No serial port selected');
         return;
       } else {
         console.error('Error requesting serial port:', error);
@@ -34,7 +35,7 @@ async function connectSerial() {
     }
     if (!selectedPort) {
       console.log('No serial port selected by the user.');
-      alert('No serial port selected. Please try again and choose a port.');
+      alert('No serial port selected');
       return;
     }
     port = selectedPort;
@@ -45,10 +46,10 @@ async function connectSerial() {
     const textEncoder = new TextEncoderStream();
     //outputStream = textEncoder.readable.pipeTo(port.writable);
     writer = textEncoder.writable.getWriter();
-    console.log('Serial port opened successfully!');
+    console.log('Serial port opened');
     startReading();
     port.addEventListener('disconnect', () => {
-      console.log('Serial port disconnected.');
+      console.log('Serial port disconnected');
       disconnectSerial(); 
     });
   } catch (error) {
@@ -78,6 +79,7 @@ async function startReading() {
     }
   }
 }
+let shoot = null; 
 function parseAndProcessData(line) {
   try {
     const trimmed = line.trim();
@@ -91,6 +93,12 @@ function parseAndProcessData(line) {
         handleRollUpdate(parsedValue);
       }
     }
+    if(trimmed === 'shootCannon'){
+        shoot = true;
+      }else{
+        shoot=false;
+      }
+    
   } catch (err) {
     console.error('Failed to parse line:', line, err);
   }
@@ -258,7 +266,7 @@ const parameters = {
 const sun = new THREE.Vector3();
 const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
 const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-sun.setFromSphericalCoords(1, phi, theta);
+sun.setFromSphericalCoords(10, phi, theta);
 sky.material.uniforms['sunPosition'].value.copy(sun);
 const sunLightPos = new THREE.Vector3();
 sunLightPos.set(sun.x * 1000, sun.y * 1000, sun.z * 1000);
@@ -544,7 +552,7 @@ function animate() {
         if (!window.cannonballs) window.cannonballs = [];
         if (!window.cannonCooldown) window.cannonCooldown = 0;
         document.onkeydown = function (e) {
-            if (e.code === 'Space' && window.cannonCooldown <= 0 && playerBoatObject) {
+            if (e.code === 'Space' || shoot && window.cannonCooldown <= 0 && playerBoatObject ) {
                 playSplash(new Audio('./music/splash.mp3'));
                 const geometry = new THREE.SphereGeometry(1, 16, 16);
                 const material = new THREE.MeshStandardMaterial({ color: 0x222222 });
