@@ -26,7 +26,7 @@ async function connectSerial() {
         } catch (error) {
             if (error.name === 'NotFoundError') {
                 console.log('No serial port selected by the user.');
-                showMessageBox('No serial port selected. You can still play with keyboard controls.');
+                showMessageBox('No serial port selected. You can still play with keyboard controls. W - forward, A - left, D - right, C - shoot cannon.');
                 return;
             } else {
                 console.error('Error requesting serial port:', error);
@@ -202,6 +202,7 @@ scoreDisplay.style.color = 'white';
 scoreDisplay.style.backgroundColor = 'rgba(0,0,0,0.5)';
 scoreDisplay.style.borderRadius = '5px';
 scoreDisplay.innerText = `Score: ${score}`;
+scoreDisplay.style.display = 'none';
 
 function updateScore(points) {
     score += points;
@@ -749,6 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const startPage = document.getElementById('startPage');
             if (startPage) startPage.style.display = 'none';
             muteBtn.style.display = 'inline-block';
+            scoreDisplay.style.display = 'inline-block';
             startGame();
             if (!musicStarted && shuffledOrder.length > 0) {
                 musicStarted = true;
