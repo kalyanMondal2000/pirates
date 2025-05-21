@@ -21,6 +21,7 @@ export default class Floater {
     velocity = new THREE.Vector3()
     ms = 0
     forces = []
+    isSinking = false // New property to track sinking status
 
     constructor(
         earth,
@@ -32,6 +33,7 @@ export default class Floater {
         this.object = object
         this.gerstnerWater = gerstnerWater
         this.isPlayerFloater = isPlayerFloater
+        this.isSinking = false; // Initialize sinking status to false
 
         this.object.traverse((child) => {
             if (child.name.startsWith('floatPoint')) {
@@ -41,7 +43,7 @@ export default class Floater {
         if (!this.floatPoints.length) {
             //then create one in the middle that we can use
             const floatPoint = new THREE.Object3D()
-            //floatPoint.name = 'floatPoint'
+            //floatPoint.name = 'floatPoint' // This name is not used, but kept for context
             this.object.add(floatPoint)
             this.floatPoints.push(floatPoint)
         }
@@ -68,23 +70,26 @@ export default class Floater {
         this.object.traverse((child) => {
             if (child instanceof THREE.ArrowHelper) {
                 child.material.transparent = true
-                child.material.opacity = 0.00005
+                child.line.visible = false; // Hide the line
+                child.cone.visible = false; // Hide the cone
+                child.material.opacity = 0.00005 // Make material almost invisible
             }
         })
 
+        // Initialize helper arrows for visualization (made almost invisible)
         this.cogHelper = new THREE.ArrowHelper(
             new THREE.Vector3(),
             new THREE.Vector3(),
-            0.000000000001,
-           0x000000
+            0.000000000001, // Very small length
+           0x000000 // Black color
         )
         earth.add(this.cogHelper)
 
         this.velocityHelper = new THREE.ArrowHelper(
             new THREE.Vector3(),
             new THREE.Vector3(),
-            0.000000000001,
-            0x000000
+            0.000000000001, // Very small length
+            0x000000 // Black color
         )
         earth.add(this.velocityHelper)
 
@@ -92,8 +97,8 @@ export default class Floater {
             const waveNormalHelper = new THREE.ArrowHelper(
                 new THREE.Vector3(),
                 new THREE.Vector3(),
-                0.00000000001,
-                0x000000 
+                0.00000000001, // Very small length
+                0x000000 // Black color
             )
             waveNormalHelper.position.copy(fp.position)
             this.waveNormalHelpers.push(waveNormalHelper)
@@ -102,8 +107,8 @@ export default class Floater {
             const gravitySlideHelper = new THREE.ArrowHelper(
                 new THREE.Vector3(0, 1, 0),
                 new THREE.Vector3(),
-                0.00000000001,
-               0x000000
+                0.00000000001, // Very small length
+               0x000000 // Black color
             )
             gravitySlideHelper.position.copy(fp.position)
             this.gravitySlideHelpers.push(gravitySlideHelper)
@@ -111,9 +116,32 @@ export default class Floater {
         })
     }
 
+    /**
+     * Sets the sinking status of the floater.
+     * When true, the floater will stop applying buoyant forces.
+     * @param {boolean} status - True if the boat is sinking, false otherwise.
+     */
+    setSinking(status) {
+        this.isSinking = status;
+    }
+
+    /**
+     * Resets the floater's movement parameters and sinking status.
+     */
+    reset() {
+        this.speed = 0;
+        this.power = 0;
+        this.heading = 0;
+        this.isSinking = false; // Reset sinking status on reset
+    }
+
     //r = 0
     update(delta) {
-        //this.boxHelper.updateMatrixWorld(true)
+        // If the boat is sinking, do not apply buoyant forces or movement logic from the floater.
+        // The main game loop will handle the vertical sinking motion.
+        if (this.isSinking) {
+            return;
+        }
 
         const t = this.gerstnerWater.water.material.uniforms['time'].value
 
@@ -147,8 +175,8 @@ export default class Floater {
             this.gravitySlideHelpers[i].position.copy(fpWorldPos)
 
             accumulatedPosition.y += waveInfo.position.y
-            accumulatedPosition.x += this.object.position.x + waveInfo.normal.x
-            accumulatedPosition.z += this.object.position.z + waveInfo.normal.z
+            accumulatedPosition.x += this.object.position.x + waveInfo.normal.x // This line might need review, usually it's just waveInfo.position.x
+            accumulatedPosition.z += this.object.position.z + waveInfo.normal.z // This line might need review, usually it's just waveInfo.position.z
 
             accumulatedNormal.add(waveInfo.normal)
         })
@@ -170,13 +198,15 @@ export default class Floater {
             this.forces = []
         }
 
+        // Apply movement based on heading and power
         accumulatedPosition.x += Math.sin(this.heading) * this.power
         accumulatedPosition.z += Math.cos(this.heading) * this.power
 
         //console.log(this.object.position.x,accumulatedPosition.x)
         //this.object.position.copy(accumulatedPosition)//
-        this.object.position.lerp(accumulatedPosition, 0.25)
+        this.object.position.lerp(accumulatedPosition, 0.25) // Smoothly interpolate to the new position
 
+        // Calculate velocity
         this.velocity = this.lastPosition.clone().sub(accumulatedPosition).negate()
         this.velocityHelper.setDirection(this.velocity)
         this.velocityHelper.position.set(
@@ -188,7 +218,7 @@ export default class Floater {
         const dist = accumulatedPosition.distanceTo(this.lastPosition)
         this.ms = dist * 1000 * delta
         this.velocityHelper.setLength(this.ms)
-        this.lastPosition = accumulatedPosition
+        this.lastPosition = accumulatedPosition.clone() // Store a clone of the current position
 
         this.collisionSphere.center.copy(this.object.position)
 
@@ -197,9 +227,11 @@ export default class Floater {
         this.cogHelper.setDirection(accumulatedNormal)
         this.cogHelper.position.copy(accumulatedPosition)
 
-        this.object.children[0].rotation.y = this.heading
-        this.object.quaternion.rotateTowards(this.cogHelper.quaternion, delta * 0.2)
+        // Apply boat rotation based on heading and smoothly rotate towards the wave normal
+        this.object.children[0].rotation.y = this.heading // Assuming the boat model is the first child
+        this.object.quaternion.rotateTowards(this.cogHelper.quaternion, delta * 0.2) // Smoothly rotate towards wave normal
 
+        // Update water position relative to the player boat
         if (this.isPlayerFloater) {
             this.gerstnerWater.water.position.x = -this.earth.position.x
             this.gerstnerWater.water.position.z = -this.earth.position.z
