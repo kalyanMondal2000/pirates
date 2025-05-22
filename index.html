@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sea of Burglars</title>
+  <title>Pirate Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet" />
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.waves.min.js"></script>
-
   <style>
     body {
       margin: 0;
@@ -20,7 +18,6 @@
       background-color: #0a0a0a;
       color: #fefae0;
     }
-
     canvas {
       display: block;
       position: fixed;
@@ -30,7 +27,6 @@
       height: 100%;
       z-index: 0;
     }
-
     #scrollContainer {
       position: absolute;
       top: 0;
@@ -40,7 +36,6 @@
       overflow-y: scroll;
       z-index: 5;
     }
-
     .scroll-section {
       min-height: 40vh;
       background-color: #0a0a0a;
@@ -55,23 +50,19 @@
       transition: all 0.8s ease;
       margin-bottom: 20px;
     }
-
     .scroll-section.active {
       opacity: 1;
       transform: translateY(0);
     }
-
     .anim-text, .anim-image {
       opacity: 0;
       transform: translateY(60px);
       transition: opacity 1.2s ease, transform 1.2s ease;
     }
-
     .in-view {
       opacity: 1 !important;
       transform: translateY(0) !important;
     }
-
     #versionContainer {
       display: flex;
       flex-wrap: wrap;
@@ -79,44 +70,65 @@
       justify-content: center;
       padding-top: 2rem;
     }
-
     .version-box {
       background: #1c1c1c;
       border: 2px solid #fcd34d;
       border-radius: 12px;
       width: 600px;
-      height: 340px;
+      height: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 10px;
       box-shadow: 0 0 15px #fcd34d88;
+      
     }
-
+    .version-title-container {
+      width: 100%;
+      cursor: pointer;
+      
+    }
+    p{
+      font-size: 3em;
+    }
     .version-title {
       font-size: 1.5rem;
       margin-bottom: 8px;
       color: #fcd34d;
     }
-
     .version-frame {
       width: 100%;
-      height: 100%;
+      height: 300px;
       border-radius: 8px;
-      flex-grow: 1;
     }
-
-    #vanta-container {
+    .slide-text-container {
       width: 100%;
-      height: 500px;
+      overflow: hidden;
+      position: relative;
+    }
+    .slide-text {
+      color: white;
+      font-size: 1.5em;
+      padding: 10px;
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: all 0.5s ease-out;
+      white-space: pre-line;
+      
+    }
+    .slide-text.visible {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    #vanta-container {
+      width: 50%;
+      height: 400px;
       border-radius: 12px;
       overflow: hidden;
       margin-top: 2rem;
       position: relative;
       z-index: 1;
     }
-
-
     #glb-model-container {
       width: 100%;
       max-width: 600px;
@@ -128,11 +140,13 @@
       position: relative;
       background-color: #111;
     }
-
     #glb-model-container canvas {
       width: 100% !important;
       height: 100% !important;
       display: block;
+    }
+    h2 {
+      color: #fcd34d;
     }
   </style>
   <script src="script.js" type="module"></script>
@@ -142,51 +156,62 @@
   <div id="startPage">
     <div id="scrollContainer">
       <section class="scroll-section">
-        <h1 class="text-6xl mb-4" style="font-size: 5em;">Sea of Burglars</h1>
+        <h1 class="text-6xl mb-4" style="font-size: 5em;">Pirate Game</h1>
         <button id="startButton" class="text-2xl px-4 py-2 border-2 border-white rounded-md" style="font-size: 3em;">Start Game</button>
         <h2 style="font-size: 2em;padding:10px;">Made by Kalyan Mondal</h2>
       </section>
-
       <section class="scroll-section">
         <div class="anim-text max-w-2xl mx-auto">
-          <h2 class="text-5xl mb-2">Open World Pirate Game</h2>
-          <p class="text-xl">
-            Use keyboard or microbit to control your ship<br />explore an open world ocean and engage in epic naval combat<br />Game made in Three.js.
-          </p>
-
+          <h2 class="text-5xl mb-2">Open World Naval Combat</h2>
+          <p class="text-xl">Use keyboard or microbit to control your ship<br />explore an open world ocean and engage in epic naval combat<br />Game made in Three.js.</p>
           <div id="glb-model-container"></div>
           <h2 class="text-5xl mb-2">Goal/Inspiration</h2>
-          <p class="text-xl">
-            My goal was to create an engaging game, simple enough to be played on thhe browser<br />I was inspired by the game "Sea of Thieves" and wanted to create a similar experience<br />The game is designed to be played with a microbit controller, but can also be played with keyboard controls.
-          </p>
+          <p class="text-xl">My goal was to create an engaging game, simple enough to be played on the browser<br />I was inspired by the game "Sea of Thieves" and wanted to create a similar experience<br />The game is designed to be played with a microbit controller, but can also be played with keyboard controls.</p>
         </div>
       </section>
-
       <section class="scroll-section">
         <div class="anim-text max-w-2xl mx-auto" style="padding: 80px">
           <h2 class="text-5xl mb-2">Process of development</h2>
-          <p class="text-xl mb-2">Preview earlier builds of the game.</p>
+          <p class="text-xl mb-2">Preview earlier builds of the game.<br>Click on version to control boat and see details/changes</p>
           <div id="versionContainer">
             <div class="version-box">
-              <div class="version-title">Version 1</div>
+              <div class="version-title-container" data-version="v1">
+                <div class="version-title">Version 1</div>
+              </div>
               <iframe src="index1.html" class="version-frame" frameborder="0"></iframe>
+              <div class="slide-text-container"></div>
             </div>
             <div class="version-box">
-              <div class="version-title">Version 2</div>
+              <div class="version-title-container" data-version="v2">
+                <div class="version-title">Version 2</div>
+              </div>
               <iframe src="index2.html" class="version-frame" frameborder="0"></iframe>
+              <div class="slide-text-container"></div>
             </div>
             <div class="version-box">
-              <div class="version-title">Version 3</div>
+              <div class="version-title-container" data-version="v3">
+                <div class="version-title">Version 3</div>
+              </div>
               <iframe src="index3.html" class="version-frame" frameborder="0"></iframe>
+              <div class="slide-text-container"></div>
             </div>
             <div class="version-box">
-              <div class="version-title">Version 4</div>
+              <div class="version-title-container" data-version="v4">
+                <div class="version-title">Version 4</div>
+              </div>
               <iframe src="index4.html" class="version-frame" frameborder="0"></iframe>
+              <div class="slide-text-container"></div>
+            </div>
+            <div class="version-box">
+              <div>
+                <div class="version-title">Final Version</div>
+              </div>
+              <div class="slide-text-container" style="font-size: 1.5em;">In final version, basic gameplay components are added(cannon, music, sound, enemies, score)<br>
+              Realism of waves is also improved, as boat goes under water less frequently by adding boatHeight offset, accounting for the size of the boat when calculating its movement due to waves<br>Also, camera movement is restricted such that user cannot look under the water</div>
             </div>
           </div>
         </div>
       </section>
-
       <section class="scroll-section">
         <div class="anim-text max-w-2xl mx-auto mb-4">
           <h2 class="text-5xl mb-2">Use of Gerstner Water and floaters</h2>
@@ -194,29 +219,18 @@
         </div>
         <div id="vanta-container"></div>
       </section>
-
       <section class="scroll-section">
         <h2 class="text-5xl mb-2">Credits</h2>
-        <p class="text-xl mt-2">
-          Made by Kalyan Mondal<br />Use of three.js and documentation<br />Use of third party assets and resources<br /><a
-            href="https://docs.google.com/document/d/1obxYx7bOeLVOrW6zHpskTEAf8uWhFaqYM23IWusJ994/edit?usp=sharing"
-            style="text-decoration: underline;"
-            >Citations</a
-          >
-        </p>
+        <p class="text-xl mt-2">Made by Kalyan Mondal<br />Use of three.js and documentation<br />Use of third party assets and resources<br /><a href="https://docs.google.com/document/d/1obxYx7bOeLVOrW6zHpskTEAf8uWhFaqYM23IWusJ994/edit?usp=sharing" style="text-decoration: underline;">Citations</a></p>
       </section>
     </div>
   </div>
-
   <script>
-    
     const scrollContainer = document.getElementById('scrollContainer');
     const sections = document.querySelectorAll('.scroll-section');
-
     function animateSections() {
       const scrollY = scrollContainer.scrollTop;
       const viewHeight = scrollContainer.clientHeight;
-
       sections.forEach((section) => {
         const sectionTop = section.offsetTop;
         if (scrollY + viewHeight > sectionTop + 100) {
@@ -227,11 +241,8 @@
         }
       });
     }
-
     scrollContainer.addEventListener('scroll', animateSections);
     window.addEventListener('load', animateSections);
-
-    
     window.addEventListener('DOMContentLoaded', () => {
       if (window.VANTA && window.THREE) {
         VANTA.WAVES({
@@ -241,7 +252,7 @@
           gyroControls: false,
           minHeight: 200.0,
           minWidth: 200.0,
-          scale: 1.0,
+          scale: 0.5,
           scaleMobile: 1.0,
           shininess: 150.0,
           waveHeight: 14.0,
@@ -251,77 +262,73 @@
         });
       }
     });
-
-
     let scene = new THREE.Scene();
     let camera, renderer, model;
     let container = document.getElementById('glb-model-container');
-
     function initThree() {
       renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.setClearColor(0x000000, 0); 
+      renderer.setClearColor(0x000000, 0);
       container.appendChild(renderer.domElement);
-
+      renderer.setPixelRatio(4);
       camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
       camera.position.set(0, 1, 4);
-
-
       let ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
       scene.add(ambientLight);
-
       let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
       directionalLight.position.set(3, 5, 2);
       scene.add(directionalLight);
-
-
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
       controls.enablePan = false;
       controls.minDistance = 2;
       controls.maxDistance = 8;
-controls.enabled = false;
-      
+      controls.enabled = false;
       const loader = new THREE.GLTFLoader();
-      loader.load(
-        'ship/ship.glb',
-        (gltf) => {
-          model = gltf.scene;
-          model.scale.set(0.025, 0.025, 0.025);
-          model.position.set(0, -0.5, 0);
-          scene.add(model);
-        },
-        (xhr) => {
-        
-        },
-        (error) => {
-          console.error('Error loading model:', error);
-        }
-      );
-
-      window.addEventListener('resize', onWindowResize);
-
-      function onWindowResize() {
+      loader.load('ship/ship.glb', (gltf) => {
+        model = gltf.scene;
+        model.scale.set(0.025, 0.025, 0.025);
+        model.position.set(0, -0.5, 0);
+        scene.add(model);
+      }, undefined, (error) => {
+        console.error('Error loading model:', error);
+      });
+      window.addEventListener('resize', () => {
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
-      }
-
-
+      });
       function animate() {
         requestAnimationFrame(animate);
         if (model) {
-          model.rotation.y += 0.003;
+          model.rotation.y += 0.01;
         }
         controls.update();
         renderer.render(scene, camera);
       }
       animate();
     }
+    window.addEventListener('load', initThree);
 
-    window.addEventListener('load', () => {
-      initThree();
+    const descriptions = {
+      v1: 'Boat control with W, A, D keys.\nCamera follows the boat.\nNo control of camera while stationary.',
+      v2: 'Increased control of camera with C and R keys\nCamera can be moved with cursor when stationary',
+      v3: 'Realistic waves added, but not animated\nFloaters are used for boat movement rather than calculating the boat position, allowing for better control of boat speed',
+      v4: 'Waves are animated, and floaters allow realistic movement of boat\nMore freedom of camera movement when stationary\nChanged parameters for the sky, making more realistic',
+    };
+
+    document.querySelectorAll('.version-title-container').forEach(container => {
+      container.addEventListener('click', () => {
+        const version = container.getAttribute('data-version');
+        const box = container.closest('.version-box');
+        const slideContainer = box.querySelector('.slide-text-container');
+        slideContainer.innerHTML = '';
+        const textEl = document.createElement('p');
+        textEl.className = 'slide-text visible';
+        textEl.innerText = descriptions[version];
+        slideContainer.appendChild(textEl);
+      });
     });
   </script>
 </body>
