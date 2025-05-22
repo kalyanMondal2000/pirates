@@ -595,7 +595,7 @@ function animate() {
         if (window.cannonCooldown === undefined) window.cannonCooldown = 0;
 
         if ((keys.c || shoot) && window.cannonCooldown <= 0 && playerBoatObject) {
-            playSplash(new Audio('./music/splash.mp3'));
+            playSplash(new Audio('/music/splash.mp3'));
             const geometry = new THREE.SphereGeometry(1, 16, 16);
             const material = new THREE.MeshStandardMaterial({ color: 0x222222 });
             const cannonball = new THREE.Mesh(geometry, material);
