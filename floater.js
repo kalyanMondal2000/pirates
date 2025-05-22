@@ -15,13 +15,12 @@ export default class Floater {
     power = 0
     isPlayerFloater = false
     collisionSphere
-    //sphereMesh
-    //boxHelper: THREE.Box3Helper
+ 
     lastPosition = new THREE.Vector3()
     velocity = new THREE.Vector3()
     ms = 0
     forces = []
-    isSinking = false // New property to track sinking status
+    isSinking = false 
 
     constructor(
         earth,

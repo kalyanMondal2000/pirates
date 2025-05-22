@@ -1,54 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<script type="importmap">
-  {
-    "imports": {
-      "three": "../build/three.module.js",
-      "three/addons/": "./jsm/"
-    }
-  }
-</script>
-<style>
-  body {
-    margin: 0px;
-    overflow: hidden;
-  }
-  canvas {
-    display: block;
-  }
-  button {
-    font-family: 'Pirata One', sans-serif;
-  }
-</style>
-
-<link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
-
-<script type="module" src="./floater.js"></script>
-<script type="module" src="./gerstnerWater.js"></script>
-<script type="module" src="./script.js"></script>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pirates</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sea of Burglars</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.waves.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Pirata One', cursive;
+      background-color: #0a0a0a;
+      color: #fefae0;
+    }
+
+    canvas {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    #scrollContainer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      z-index: 5;
+    }
+
+    .scroll-section {
+      min-height: 40vh;
+      background-color: #0a0a0a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s ease;
+      margin-bottom: 20px;
+    }
+
+    .scroll-section.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .anim-text, .anim-image {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    .in-view {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    #versionContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      padding-top: 2rem;
+    }
+
+    .version-box {
+      background: #1c1c1c;
+      border: 2px solid #fcd34d;
+      border-radius: 12px;
+      width: 600px;
+      height: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      box-shadow: 0 0 15px #fcd34d88;
+    }
+
+    .version-title {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: #fcd34d;
+    }
+
+    .version-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      flex-grow: 1;
+    }
+
+    #vanta-container {
+      width: 100%;
+      height: 500px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+
+    #glb-model-container {
+      width: 100%;
+      max-width: 600px;
+      height: 400px;
+      border: 2px solid #fcd34d;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 2rem auto;
+      position: relative;
+      background-color: #111;
+    }
+
+    #glb-model-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+  </style>
+  <script src="script.js" type="module"></script>
 </head>
 <body>
-  <div id="startPage" style="
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    flex-direction: column;
-    font-family: 'Pirata One', sans-serif;
-    color: white;
-    font-size: 2em;">
-    <h1>Pirate Game</h1>
-    <button id="startButton" style="font-size: 1.5em; padding: 10px 20px; cursor: pointer;">Start Game</button>
-  </div>
   <canvas id="canvas"></canvas>
+  <div id="startPage">
+    <div id="scrollContainer">
+      <section class="scroll-section">
+        <h1 class="text-6xl mb-4" style="font-size: 5em;">Sea of Burglars</h1>
+        <button id="startButton" class="text-2xl px-4 py-2 border-2 border-white rounded-md" style="font-size: 3em;">Start Game</button>
+        <h2 style="font-size: 2em;padding:10px;">Made by Kalyan Mondal</h2>
+      </section>
+
+      <section class="scroll-section">
+        <div class="anim-text max-w-2xl mx-auto">
+          <h2 class="text-5xl mb-2">Open World Pirate Game</h2>
+          <p class="text-xl">
+            Use keyboard or microbit to control your ship<br />explore an open world ocean and engage in epic naval combat<br />Game made in Three.js.
+          </p>
+
+          <div id="glb-model-container"></div>
+        </div>
+      </section>
+
+      <section class="scroll-section">
+        <div class="anim-text max-w-2xl mx-auto" style="padding: 80px">
+          <h2 class="text-5xl mb-2">Process of development</h2>
+          <p class="text-xl mb-2">Preview earlier builds of the game.</p>
+          <div id="versionContainer">
+            <div class="version-box">
+              <div class="version-title">Version 1</div>
+              <iframe src="index1.html" class="version-frame" frameborder="0"></iframe>
+            </div>
+            <div class="version-box">
+              <div class="version-title">Version 2</div>
+              <iframe src="index2.html" class="version-frame" frameborder="0"></iframe>
+            </div>
+            <div class="version-box">
+              <div class="version-title">Version 3</div>
+              <iframe src="index3.html" class="version-frame" frameborder="0"></iframe>
+            </div>
+            <div class="version-box">
+              <div class="version-title">Version 4</div>
+              <iframe src="index4.html" class="version-frame" frameborder="0"></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scroll-section">
+        <div class="anim-text max-w-2xl mx-auto mb-4">
+          <h2 class="text-5xl mb-2">Use of Gerstner Water and floaters</h2>
+          <p class="text-xl">game uses gerstner water to emulate realistic wave movemement. <br />floaters are also used to simulate boat movement in waves, maximizing immersion</p>
+        </div>
+        <div id="vanta-container"></div>
+      </section>
+
+      <section class="scroll-section">
+        <h2 class="text-5xl mb-2">Credits</h2>
+        <p class="text-xl mt-2">
+          Made by Kalyan Mondal<br />Use of three.js and documentation<br />Use of third party assets and resources<br /><a
+            href="https://docs.google.com/document/d/1obxYx7bOeLVOrW6zHpskTEAf8uWhFaqYM23IWusJ994/edit?usp=sharing"
+            style="text-decoration: underline;"
+            >Citations</a
+          >
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    
+    const scrollContainer = document.getElementById('scrollContainer');
+    const sections = document.querySelectorAll('.scroll-section');
+
+    function animateSections() {
+      const scrollY = scrollContainer.scrollTop;
+      const viewHeight = scrollContainer.clientHeight;
+
+      sections.forEach((section) => {
+        const sectionTop = section.offsetTop;
+        if (scrollY + viewHeight > sectionTop + 100) {
+          section.classList.add('active');
+          section.querySelectorAll('.anim-text, .anim-image').forEach((el) => {
+            el.classList.add('in-view');
+          });
+        }
+      });
+    }
+
+    scrollContainer.addEventListener('scroll', animateSections);
+    window.addEventListener('load', animateSections);
+
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.VANTA && window.THREE) {
+        VANTA.WAVES({
+          el: '#vanta-container',
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.0,
+          minWidth: 200.0,
+          scale: 1.0,
+          scaleMobile: 1.0,
+          shininess: 150.0,
+          waveHeight: 14.0,
+          waveSpeed: 1.65,
+          zoom: 0.65,
+          THREE: window.THREE,
+        });
+      }
+    });
+
+
+    let scene = new THREE.Scene();
+    let camera, renderer, model;
+    let container = document.getElementById('glb-model-container');
+
+    function initThree() {
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setClearColor(0x000000, 0); 
+      container.appendChild(renderer.domElement);
+
+      camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(0, 1, 4);
+
+
+      let ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambientLight);
+
+      let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(3, 5, 2);
+      scene.add(directionalLight);
+
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.enablePan = false;
+      controls.minDistance = 2;
+      controls.maxDistance = 8;
+controls.enabled = false;
+      
+      const loader = new THREE.GLTFLoader();
+      loader.load(
+        'ship/ship.glb',
+        (gltf) => {
+          model = gltf.scene;
+          model.scale.set(0.025, 0.025, 0.025);
+          model.position.set(0, -1, 0);
+          scene.add(model);
+        },
+        (xhr) => {
+        
+        },
+        (error) => {
+          console.error('Error loading model:', error);
+        }
+      );
+
+      window.addEventListener('resize', onWindowResize);
+
+      function onWindowResize() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      }
+
+
+      function animate() {
+        requestAnimationFrame(animate);
+        if (model) {
+          model.rotation.y += 0.003;
+        }
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    window.addEventListener('load', () => {
+      initThree();
+    });
+  </script>
 </body>
 </html>

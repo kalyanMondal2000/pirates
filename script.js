@@ -1,4 +1,3 @@
-// main.js
 
 import * as THREE from "./three/build/three.module.js";
 import { GLTFLoader } from "./three/examples/jsm/loaders/GLTFLoader.js";
@@ -284,7 +283,7 @@ gltfLoader.load("./ship/ship.glb", (gltf) => {
 
 const ambientLight = new THREE.AmbientLight('white', 5);
 scene.add(ambientLight);
-const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 512;
 sunLight.shadow.mapSize.height = 512;
@@ -302,9 +301,10 @@ const sky = new Sky();
 sky.scale.setScalar(20000);
 scene.add(sky);
 const skyUniforms = sky.material.uniforms;
-skyUniforms['turbidity'].value = 10;
-skyUniforms['rayleigh'].value = 2;
+skyUniforms['turbidity'].value = 1;
+skyUniforms['rayleigh'].value = 0.5;
 skyUniforms['mieCoefficient'].value = 0.005;
+skyUniforms['mieDirectionalG'].value = 0.5;
 
 const parameters = {
     elevation: 2,
@@ -324,7 +324,7 @@ let speedDecrementRate = 0.002;
 let speedIncrement = 0.0025;
 const rotateSpeed = 0.4 / 1000000;
 const keys = { w: false, a: false, d: false, shift: false, c: false, r: false };
-let controlState = 'boat';
+
 let cameraZoomDistance = 150;
 
 document.addEventListener("keydown", (e) => { const k = e.key.toLowerCase(); if (keys.hasOwnProperty(k)) keys[k] = true; });
@@ -546,7 +546,7 @@ function animate() {
             } else {
                 if (currentSpeed > 0) {
                     currentSpeed = Math.max(currentSpeed - speedDecrementRate, 0);
-                    currentFloater.power = Math.min(currentFloater.power + 0.05, 0);
+                    currentFloater.power = Math.min(currentFloater.power + 0.0625, 0);
                 } else if (currentSpeed < 0) {
                     currentSpeed = Math.min(currentSpeed + speedDecrementRate, 0);
                     currentFloater.power = Math.max(currentFloater.power - 0.025, 0);
