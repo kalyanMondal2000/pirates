@@ -25,7 +25,7 @@ async function connectSerial() {
         } catch (error) {
             if (error.name === 'NotFoundError') {
                 console.log('No serial port selected by the user.');
-                showMessageBox('No serial port selected. You can still play with keyboard controls. W - forward, A - left, D - right, C - shoot cannon.');
+                showMessageBox('No serial port selected. You can still play with keyboard controls. \nW - forward, A - left, D - right, C - shoot cannon.');
                 return;
             } else {
                 console.error('Error requesting serial port:', error);
@@ -35,7 +35,7 @@ async function connectSerial() {
         }
         if (!selectedPort) {
             console.log('No serial port selected by the user.');
-            showMessageBox('No serial port selected. You can still play with keyboard controls.');
+            showMessageBox('No serial port selected. You can still play with keyboard controls.\nW - forward, A - left, D - right, C - shoot cannon.');
             return;
         }
         port = selectedPort;
@@ -84,6 +84,7 @@ let shoot = false;
 function parseAndProcessData(line) {
     try {
         const trimmed = line.trim();
+        console.log(trimmed)
         const match = trimmed.match(/"?(pitch|roll)"?\s*:\s*(-?\d+(\.\d+)?)/i);
         if (match) {
             const key = match[1].toLowerCase();
@@ -169,6 +170,7 @@ function showMessageBox(message) {
     const text = document.createElement('p');
     text.innerText = message;
     text.style.marginBottom = '15px';
+    text.style.fontSize = '1.5em'
 
     const closeButton = document.createElement('button');
     closeButton.innerText = 'OK';
@@ -750,6 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const startPage = document.getElementById('startPage');
             if (startPage) startPage.style.display = 'none';
             muteBtn.style.display = 'inline-block';
+            
             scoreDisplay.style.display = 'inline-block';
             startGame();
             if (!musicStarted && shuffledOrder.length > 0) {
