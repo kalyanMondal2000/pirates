@@ -15,17 +15,12 @@ let writer = null;
 
 async function connectSerial() {
     try {
-        if (!navigator.serial) {
-            showMessageBox('Serial API not supported in this browser. Please use Chrome or Edge.');
-            return;
-        }
         let selectedPort;
         try {
             selectedPort = await navigator.serial.requestPort();
         } catch (error) {
             if (error.name === 'NotFoundError') {
                 console.log('No serial port selected by the user.');
-                showMessageBox('No serial port selected. You can still play with keyboard controls. \nW - forward, A - left, D - right, C - shoot cannon.');
                 return;
             } else {
                 console.error('Error requesting serial port:', error);
@@ -35,7 +30,7 @@ async function connectSerial() {
         }
         if (!selectedPort) {
             console.log('No serial port selected by the user.');
-            showMessageBox('No serial port selected. You can still play with keyboard controls.\nW - forward, A - left, D - right, C - shoot cannon.');
+            showMessageBox('No serial port selected');
             return;
         }
         port = selectedPort;
@@ -325,7 +320,7 @@ let maxSpeed = 0.4;
 let speedDecrementRate = 0.002;
 let speedIncrement = 0.0025;
 const rotateSpeed = 0.4 / 1000000;
-const keys = { w: false, a: false, d: false, shift: false, c: false, r: false };
+const keys = { w: false, a: false, d: false, shift: false, c: false };
 
 let cameraZoomDistance = 150;
 
@@ -596,7 +591,7 @@ function animate() {
         if (!window.cannonballs) window.cannonballs = [];
         if (window.cannonCooldown === undefined) window.cannonCooldown = 0;
 
-        if ((keys.c || shoot) && window.cannonCooldown <= 0 && playerBoatObject) {
+        if ((keys.c || shoot || keys.space) && window.cannonCooldown <= 0 && playerBoatObject) {
             playSplash(new Audio('/music/splash.mp3'));
             const geometry = new THREE.SphereGeometry(1, 16, 16);
             const material = new THREE.MeshStandardMaterial({ color: 0x222222 });
@@ -752,8 +747,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const startPage = document.getElementById('startPage');
             if (startPage) startPage.style.display = 'none';
             muteBtn.style.display = 'inline-block';
-            
             scoreDisplay.style.display = 'inline-block';
+
+            const controlInfoElement = document.createElement('p');
+
+            controlInfoElement.id = 'controlInfo';
+
+            controlInfoElement.textContent = 'Tilt the boat or use W,A,D keys to move and C to shoot cannon';
+
+            controlInfoElement.style.position = 'absolute';
+            controlInfoElement.style.top = '20px';
+            controlInfoElement.style.backgroundColor = 'white';
+            controlInfoElement.style.padding = '1rem 2rem';
+            controlInfoElement.style.textAlign = 'center';
+            controlInfoElement.style.maxWidth = '90%';
+            controlInfoElement.style.boxSizing = 'border-box'; 
+            controlInfoElement.style.fontSize = '1.5em';
+            controlInfoElement.style.fontFamily = 'Times New Roman'
+
+            controlInfoElement.classList.add(
+                'left-1/2',
+                '-translate-x-1/2',
+                'rounded-lg',
+                'shadow-md',
+                'text-black',
+                'text-lg',
+                'font-medium'
+            );
+
+            document.body.appendChild(controlInfoElement);
+
             startGame();
             if (!musicStarted && shuffledOrder.length > 0) {
                 musicStarted = true;
