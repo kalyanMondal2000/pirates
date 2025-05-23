@@ -1,13 +1,13 @@
-import * as THREE from "../three/build/three.module.js";
-import { GLTFLoader } from "../three/examples/jsm/loaders/GLTFLoader.js";
-import { Water } from './three/examples/jsm/objects/Water.js'; // Water is imported but not used in the provided code
-import { Sky } from './three/examples/jsm/objects/Sky.js';
-import { OrbitControls } from "./three/examples/jsm/controls/OrbitControls.js";
-import { GUI } from '/lil-gui.module.min.js'
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/controls/OrbitControls.js";
+import { Sky } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/objects/Sky.js";
 
 
-import GerstnerWater from '/gerstnerWater.js'
-import Floater from '/floater.js'
+import { GUI } from 'https://cdn.jsdelivr.net/gh/kalyanMondal2000/lil-gui@master/lil-gui.module.min.js';
+import GerstnerWater from "https://cdn.jsdelivr.net/gh/kalyanMondal2000/gerstnerWater@master/gerstnerWater.js";
+import Floater from "https://cdn.jsdelivr.net/gh/kalyanMondal2000/floater@master/floater.js";
+
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
