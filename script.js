@@ -1,10 +1,9 @@
-
 import * as THREE from "./three/build/three.module.js";
 import { GLTFLoader } from "./three/examples/jsm/loaders/GLTFLoader.js";
-import { GUI } from './lil-gui.module.min.js';
 import { OrbitControls } from "./three/examples/jsm/controls/OrbitControls.js";
 import { Sky } from "./three/examples/jsm/objects/Sky.js";
 
+import { GUI } from './lil-gui.module.min.js';
 import GerstnerWater from "./gerstnerWater.js";
 import Floater from "./floater.js";
 
@@ -79,7 +78,7 @@ let shoot = false;
 function parseAndProcessData(line) {
     try {
         const trimmed = line.trim();
-        console.log(trimmed)
+        //console.log(trimmed)
         const match = trimmed.match(/"?(pitch|roll)"?\s*:\s*(-?\d+(\.\d+)?)/i);
         if (match) {
             const key = match[1].toLowerCase();
@@ -111,7 +110,6 @@ function handlePitchUpdate(pitchValue) {
         right = false;
     }
 }
-
 let forward = false;
 function handleRollUpdate(rollValue) {
     let roll = rollValue;

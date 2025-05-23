@@ -32,7 +32,7 @@ export default class Floater {
         this.object = object
         this.gerstnerWater = gerstnerWater
         this.isPlayerFloater = isPlayerFloater
-        this.isSinking = false; // Initialize sinking status to false
+        this.isSinking = false;
 
         this.object.traverse((child) => {
             if (child.name.startsWith('floatPoint')) {

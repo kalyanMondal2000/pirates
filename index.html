@@ -17,6 +17,7 @@
       font-family: 'Pirata One', cursive;
       background-color: #0a0a0a;
       color: #fefae0;
+      
     }
     canvas {
       display: block;
@@ -26,6 +27,7 @@
       width: 100%;
       height: 100%;
       z-index: 0;
+      
     }
     #scrollContainer {
       position: absolute;
@@ -36,8 +38,14 @@
       overflow-y: scroll;
       z-index: 5;
     }
+    h1{
+      text-shadow: 0 0 25px #daa90a88;
+    }
+    h2{
+      text-shadow: 0 0 25px #daa90a88;
+    }
     .scroll-section {
-      min-height: 40vh;
+      min-height: 30vh;
       background-color: #0a0a0a;
       display: flex;
       flex-direction: column;
@@ -54,10 +62,15 @@
       opacity: 1;
       transform: translateY(0);
     }
-    .anim-text, .anim-image {
+    .anim-text {
       opacity: 0;
-      transform: translateY(60px);
+      transform: translateY(100px);
       transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+    .anim-image{
+      
+      transform: translateX(80px);
+      transition: opacity 3s ease-in, transform 3s ease-in;
     }
     .in-view {
       opacity: 1 !important;
@@ -88,13 +101,11 @@
       cursor: pointer;
       
     }
-    p{
-      font-size: 3em;
-    }
     .version-title {
       font-size: 1.5rem;
       margin-bottom: 8px;
       color: #fcd34d;
+      
     }
     .version-frame {
       width: 100%;
@@ -163,51 +174,78 @@
       <section class="scroll-section">
         <div class="anim-text max-w-2xl mx-auto">
           <h2 class="text-5xl mb-2">Open World Naval Combat</h2>
-          <p class="text-xl">Use keyboard or microbit to control your ship<br />explore an open world ocean and engage in epic naval combat<br />Game made in Three.js.</p>
+          <p class="text-xl">Use keyboard or tilt the boat to control your ship<br />
+            Explore an open world ocean and engage in epic naval combat<br />
+            Game made using Three.js(library to render 3D graphics)</p>
           <div id="glb-model-container"></div>
           <h2 class="text-5xl mb-2">Goal/Inspiration</h2>
-          <p class="text-xl">My goal was to create an engaging game, simple enough to be played on the browser<br />I was inspired by the game "Sea of Thieves" and wanted to create a similar experience<br />The game is designed to be played with a microbit controller, but can also be played with keyboard controls.</p>
+         <p class="text-xl">My goal was to create an engaging game, simple enough to be played on the browser<br/>
+          I was inspired by the game "Sea of Thieves" and wanted to create a similar experience<br/>
+          The game is designed to be played with a microbit controller inside of the boat model, 
+          but can also be played with keyboard controls.<br>
+          I was interested in creating a physical controller, as most naval games use traditional gaming controllers.<br>
+           A custom controller for my pirate game would make it more interesting than a traditional game</p>
         </div>
       </section>
       <section class="scroll-section">
+        <div class="anim-text max-w-2xl mx-auto">
+      <h2 class="text-5xl mb-2">Discovery Question</h2>
+          <p class="text-xl" style="font-size: 2em;">How can I program a realistic game that can function 
+            in a web browser while developing a physical controller that can manipulate the game's digital 
+            elements(boat and cannon)?</p>
+      </div>
+        </section>
+      <section class="scroll-section">
         <div class="anim-text max-w-2xl mx-auto" style="padding: 80px">
           <h2 class="text-5xl mb-2">Process of development</h2>
-          <p class="text-xl mb-2">Preview earlier builds of the game.<br>Click on version to control boat and see details/changes</p>
+          <p class="text-xl mb-2">Preview earlier builds of the game.<br>Click on version to see details/changes</p>
           <div id="versionContainer">
             <div class="version-box">
               <div class="version-title-container" data-version="v1">
                 <div class="version-title">Version 1</div>
               </div>
+             
               <iframe src="index1.html" class="version-frame" frameborder="0"></iframe>
+              
               <div class="slide-text-container"></div>
             </div>
             <div class="version-box">
               <div class="version-title-container" data-version="v2">
                 <div class="version-title">Version 2</div>
               </div>
+              
               <iframe src="index2.html" class="version-frame" frameborder="0"></iframe>
+              
               <div class="slide-text-container"></div>
             </div>
             <div class="version-box">
               <div class="version-title-container" data-version="v3">
                 <div class="version-title">Version 3</div>
               </div>
+            
               <iframe src="index3.html" class="version-frame" frameborder="0"></iframe>
+              
               <div class="slide-text-container"></div>
             </div>
             <div class="version-box">
               <div class="version-title-container" data-version="v4">
                 <div class="version-title">Version 4</div>
               </div>
+              
               <iframe src="index4.html" class="version-frame" frameborder="0"></iframe>
+             
               <div class="slide-text-container"></div>
             </div>
             <div class="version-box">
               <div>
                 <div class="version-title">Final Version</div>
               </div>
-              <div class="slide-text-container" style="font-size: 1.5em;">In final version, basic gameplay components are added(cannon, music, sound, enemies, score)<br>
-              Realism of waves is also improved, as boat goes under water less frequently by adding boatHeight offset, accounting for the size of the boat when calculating its movement due to waves<br>Also, camera movement is restricted such that user cannot look under the water</div>
+              <div class="slide-text-container" style="font-size: 1.5em;">In final version, basic gameplay components 
+                are added(cannon, music, sound, enemies, score)<br>
+              Realism of waves is also improved, as boat goes under water less frequently by adding boatHeight offset, 
+              accounting for the size of the boat when calculating its movement due to waves<br>
+              Also, camera movement is restricted such that user cannot look under the water<br>
+              camera "lerping" is also added to allow for camera movement while boat is stationary, eliminating need for c and r keys to control side view</div>
             </div>
           </div>
         </div>
@@ -215,13 +253,46 @@
       <section class="scroll-section">
         <div class="anim-text max-w-2xl mx-auto mb-4">
           <h2 class="text-5xl mb-2">Use of Gerstner Water and floaters</h2>
-          <p class="text-xl">game uses gerstner water to emulate realistic wave movemement. <br />floaters are also used to simulate boat movement in waves, maximizing immersion</p>
+          <p class="text-xl">game uses gerstner water to emulate realistic wave movemement. <br />floaters are also used to simulate realistic boat movement in waves, maximizing immersion</p>
         </div>
-        <div id="vanta-container"></div>
+        
+        <div id="vanta-container" style="box-shadow: 0 0 50px #000564;border: 2px solid #0b1071;"></div>
+        
+      </section>
+
+      <section class="scroll-section">
+        <div class="anim-text max-w-2xl mx-auto mb-4">
+          <h2 class="text-5xl mb-2">Creation of the controller</h2>
+          <p class="text-xl">The game can be controlled using the physical boat model, by tilting it left, right or forward. 
+            There is also a button at the front of the boat to shoot the cannon<br>
+            I 3D printed the parts of the boat model using the same 3D model as the boat used in the game<br>
+            Inside the boat, a microbit reads the input of the button and the pitch/roll angle of its accelerometer(a sensor which 
+            measures the angle of the microbit)<br>
+            This data is sent to another microbit which is connected to the laptop, using a radio signal<br>
+            Via a serial connection, the connected microbit relays the boat model data to the game's program<br>
+            In turn, my program interprets the data and adjusts the virtual boat accordingly<br><br><br>Portion of my program which reads serial import of microbit to measure angles and if the button is pressed:</p>
+        </div>
+        <div class="anim-image"> 
+        <image src="image1.png" style="height:50%;width:50%;transform: translateX(275px);border: 2px solid rgb(87, 3, 87);box-shadow: 0 0 20px rgb(109, 2, 109);border-radius: 8px;"></image>
+        </div>
+      </section>
+
+<section class="scroll-section">
+        <div class="anim-text max-w-2xl mx-auto mb-4">
+          <h2 class="text-5xl mb-2">Potential Improvements & Alternative Ideas</h2>
+          <p class="text-xl">
+            1. More challenges for the player(enemies fire back, time limit, etc.)<br>
+            2. Model seabed underneath the water, so that the bottom isn't empty void(player can see this if they go off edge)<br><br>
+            3. Have a playable pirate character that moves around the boat(instead of only being able to control boat). Would make more immersive<br><br>
+            4. Program computer webcam to detect facial expressions to control boat(more accesible for disabled)<br><br>
+            5. Add more elements to the environment(islands, sharks, varying weather, changing time)<br><br>
+            6. Figure out steps to publish website ang get a domain name
+          </p>
+        </div>
       </section>
       <section class="scroll-section">
         <h2 class="text-5xl mb-2">Credits</h2>
-        <p class="text-xl mt-2">Made by Kalyan Mondal<br />Use of three.js and documentation<br />Use of third party assets and resources<br /><a href="https://docs.google.com/document/d/1obxYx7bOeLVOrW6zHpskTEAf8uWhFaqYM23IWusJ994/edit?usp=sharing" style="text-decoration: underline;">Citations</a></p>
+        <p class="text-xl">Made by Kalyan Mondal<br />Use of three.js and documentation<br />Use of third party assets and resources<br /><a href="https://docs.google.com/document/d/1obxYx7bOeLVOrW6zHpskTEAf8uWhFaqYM23IWusJ994/edit?usp=sharing" style="text-decoration: underline;">Citations</a></p>
       </section>
     </div>
   </div>
@@ -288,8 +359,8 @@
       const loader = new THREE.GLTFLoader();
       loader.load('ship/ship.glb', (gltf) => {
         model = gltf.scene;
-        model.scale.set(0.025, 0.025, 0.025);
-        model.position.set(0, -0.5, 0);
+        model.scale.set(0.05, 0.025, 0.05);
+        model.position.set(0.1, -0.6, -3);
         scene.add(model);
       }, undefined, (error) => {
         console.error('Error loading model:', error);
