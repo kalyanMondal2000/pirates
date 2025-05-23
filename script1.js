@@ -3,7 +3,7 @@ import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/controls/OrbitControls.js";
 import { Sky } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/objects/Sky.js";
 
-import { Water } from "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/objects/Water.js";
+import { Water } from "https://cdn.jsdelivr.net/gh/kalyanMondal2000/water@master/Water.js";
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
